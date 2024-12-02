@@ -1,0 +1,6 @@
+@Ecommerce.Monolito_HostAddress = http://localhost:5074
+
+GET {{Ecommerce.Monolito_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
