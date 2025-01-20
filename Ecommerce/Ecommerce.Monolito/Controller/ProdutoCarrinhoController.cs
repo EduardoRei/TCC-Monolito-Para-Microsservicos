@@ -33,14 +33,14 @@ namespace Ecommerce.Monolito.Controller
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(ProdutoCarrinho produtoCarrinho)
+        public async Task<IActionResult> Add(ProdutoPedido produtoCarrinho)
         {
             await _service.AddAsync(produtoCarrinho);
             return CreatedAtAction(nameof(Get), new { idCarrinho = produtoCarrinho.IdCarrinho, idProduto = produtoCarrinho.IdProduto }, produtoCarrinho);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(ProdutoCarrinho produtoCarrinho)
+        public async Task<IActionResult> Update(ProdutoPedido produtoCarrinho)
         {
             await _service.UpdateAsync(produtoCarrinho);
             return NoContent();

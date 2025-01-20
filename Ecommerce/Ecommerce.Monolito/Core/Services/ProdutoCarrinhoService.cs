@@ -11,7 +11,7 @@ namespace Ecommerce.Monolito.Core.Services {
         {
         }
 
-        public async Task<ProdutoCarrinho> GetByIdAsync(int idCarrinho, int idProduto)
+        public async Task<ProdutoPedido> GetByIdAsync(int idCarrinho, int idProduto)
         {
             var produtoCarrinho = await DbContext.ProdutoCarrinhos
                 .Include(pc => pc.Carrinho)
@@ -19,23 +19,23 @@ namespace Ecommerce.Monolito.Core.Services {
                 .FirstOrDefaultAsync(pc => pc.IdCarrinho == idCarrinho && pc.IdProduto == idProduto);
 
             if(produtoCarrinho?.IdCarrinho == 0 || produtoCarrinho == null)
-                return new ProdutoCarrinho();
+                return new ProdutoPedido();
 
             return produtoCarrinho;
         }
 
-        public async Task<IEnumerable<ProdutoCarrinho>> GetAllAsync()
+        public async Task<IEnumerable<ProdutoPedido>> GetAllAsync()
         {
             return await DbContext.ProdutoCarrinhos.ToListAsync();
         }
 
-        public async Task AddAsync(ProdutoCarrinho produtoCarrinho)
+        public async Task AddAsync(ProdutoPedido produtoCarrinho)
         {
             DbContext.ProdutoCarrinhos.Add(produtoCarrinho);
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(ProdutoCarrinho produtoCarrinho)
+        public async Task UpdateAsync(ProdutoPedido produtoCarrinho)
         {
             DbContext.ProdutoCarrinhos.Update(produtoCarrinho);
             await DbContext.SaveChangesAsync();
