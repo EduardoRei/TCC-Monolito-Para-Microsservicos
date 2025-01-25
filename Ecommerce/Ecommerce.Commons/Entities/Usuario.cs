@@ -1,4 +1,4 @@
-﻿namespace Ecommerce.Migrations.Entities {
+﻿namespace Ecommerce.Commons.Entities {
     public class Usuario {
         public int Id { get; set; }
         public string Nome { get; set; }

@@ -1,4 +1,4 @@
-﻿using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
 
 namespace Ecommerce.Monolito.Core.Interface
 {

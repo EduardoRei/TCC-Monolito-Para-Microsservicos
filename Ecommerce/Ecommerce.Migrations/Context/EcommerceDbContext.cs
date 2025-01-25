@@ -1,8 +1,8 @@
-﻿using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Ecommerce.Migrations.Context
+namespace Ecommerce.DbMigrator.Context
 {
 
     public class EcommerceDbContext : DbContext
@@ -19,9 +19,6 @@ namespace Ecommerce.Migrations.Context
         public DbSet<Pagamento> Pagamento { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<ProdutoPedido> ProdutoPedido { get; set; }
-        public DbSet<FormaPagamento> FormaPagamento { get; set; }
-        public DbSet<StatusPagamento> StatusPagamento { get; set; }
-        public DbSet<StatusPedido> StatusPedido { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -62,12 +59,6 @@ namespace Ecommerce.Migrations.Context
                 .OnDelete(DeleteBehavior.Restrict); // Evitar cascata na exclusão de carrinhos de um usuário
 
             modelBuilder.Entity<Pedido>()
-                .HasOne(p => p.StatusPedido)
-                .WithMany(s => s.Pedido)
-                .HasForeignKey(p => p.IdStatusPedido)
-                .OnDelete(DeleteBehavior.Restrict); // Evitar cascata na exclusão de pedidos de um status
-
-            modelBuilder.Entity<Pedido>()
                 .HasOne(p => p.Pagamento)
                 .WithOne(s => s.Pedido)
                 .HasForeignKey<Pedido>(p => p.IdPagamento)
@@ -89,41 +80,8 @@ namespace Ecommerce.Migrations.Context
                 .HasOne(p => p.Pedido)
                 .WithOne(u => u.Pagamento)
                 .HasForeignKey<Pagamento>(p => p.IdPedido)
-                .OnDelete(DeleteBehavior.Restrict); // Evitar cascata na exclusão de pagamentos de um usuário
+                .OnDelete(DeleteBehavior.Restrict); // Evitar cascata na exclusão de pagamentos de um usuári
 
-            modelBuilder.Entity<Pagamento>()
-                .HasOne(p => p.FormaPagamento)
-                .WithMany(t => t.Pagamento)
-                .HasForeignKey(p => p.IdTipoPagamento)
-                .OnDelete(DeleteBehavior.Restrict); // Evitar cascata na exclusão de pagamentos com tipos
-
-            modelBuilder.Entity<Pagamento>()
-            .HasOne(p => p.StatusPagamento) // Um pagamento tem um status de pagamento
-            .WithMany(s => s.Pagamento)
-            .HasForeignKey(p => p.IdStatusPagamento) // A chave estrangeira está na tabela Pagamento
-            .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<StatusPagamento>().HasData(
-                new StatusPagamento { Id = 1, Status = "Aguardando Pagamento" },
-                new StatusPagamento { Id = 2, Status = "Processando Pagamento" },
-                new StatusPagamento { Id = 3, Status = "Pagamento Identificado" },
-                new StatusPagamento { Id = 4, Status = "Pagamento Negado" }
-            );
-
-            // Seeding StatusPedido
-            modelBuilder.Entity<StatusPedido>().HasData(
-                new StatusPedido { Id = 1, Status = "Separando Pedido" },
-                new StatusPedido { Id = 2, Status = "Pedido Enviado" },
-                new StatusPedido { Id = 3, Status = "Pedido Entregue" }
-            );
-
-            // Seeding TipoPagamento
-            modelBuilder.Entity<FormaPagamento>().HasData(
-                new FormaPagamento { Id = 1, Nome = "Boleto" },
-                new FormaPagamento { Id = 2, Nome = "Pix" },
-                new FormaPagamento { Id = 3, Nome = "Cartão de Crédito" },
-                new FormaPagamento { Id = 4, Nome = "Cartão de Débito" }
-            );
 
             modelBuilder.Entity<Categoria>().HasData(
                 new Categoria { Id = 1, Nome = "Smartphones" },

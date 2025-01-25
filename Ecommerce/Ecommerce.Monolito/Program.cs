@@ -1,4 +1,4 @@
-using Ecommerce.Migrations.Context;
+using Ecommerce.DbMigrator.Context;
 using Ecommerce.Monolito.Core.Interface;
 using Ecommerce.Monolito.Core.Service;
 using Microsoft.EntityFrameworkCore;

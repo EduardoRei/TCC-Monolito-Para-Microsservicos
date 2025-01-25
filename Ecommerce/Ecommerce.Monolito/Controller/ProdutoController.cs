@@ -1,7 +1,7 @@
-﻿using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
 using Ecommerce.Monolito.Core.Dtos;
 using Ecommerce.Monolito.Core.Interface;
-using Ecommerce.Monolito.Util;
+using Ecommerce.Commons.Util;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Monolito.Controller
@@ -11,12 +11,13 @@ namespace Ecommerce.Monolito.Controller
     public class ProdutoController : ControllerBase
     {
         private readonly IProdutoService _produtoService;
+        private readonly ICategoriaService _categoriaService;
 
-        public ProdutoController(IProdutoService productService)
+        public ProdutoController(IProdutoService productService, ICategoriaService categoriaService)
         {
             _produtoService = productService;
+            _categoriaService = categoriaService;
         }
-
 
         [HttpGet("{id}", Name = "GetProdutoById")]
         public async Task<ActionResult<ProdutoDto>> GetProdutoById(int id)
@@ -30,7 +31,6 @@ namespace Ecommerce.Monolito.Controller
             return Ok(produto);
         }
 
-
         [HttpGet(Name = "GetAllProdutos")]
         public async Task<ActionResult<IEnumerable<ProdutoDto>>> GetAllProdutos()
         {
@@ -39,16 +39,12 @@ namespace Ecommerce.Monolito.Controller
             return Ok(produtos);
         }
 
-
-
         [HttpGet("quantidade/{id}", Name = "GetQuantidadeProduto")]
         public async Task<ActionResult<int>> GetQuantidadeProduto(int id)
         {
             var quantidade = await _produtoService.GetQuantidadeProdutoByIdAsync(id);
             return Ok(quantidade);
         }
-
-
 
         [HttpDelete("{id}", Name = "DeleteProduto")]
         public async Task<IActionResult> DeleteProduto(int id)
@@ -57,25 +53,26 @@ namespace Ecommerce.Monolito.Controller
             return NoContent();
         }
 
-
-
         [HttpPost(Name = "AddProduto")]
         public async Task<ActionResult> AddProduto(ProdutoDto produtoDto)
         {
             if (string.IsNullOrWhiteSpace(produtoDto.Nome) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(produtoDto.Nome))
-                return BadRequest("Nome é obrigatório");
+                return BadRequest("Nome é obrigatório.");
 
             if (!produtoDto.PrecoUnitario.HasValue || produtoDto.PrecoUnitario <= 0)
-                return BadRequest("PrecoUnitario é obrigatório");
+                return BadRequest("PrecoUnitario é obrigatório.");
 
             if (!produtoDto.QuantidadeEstoque.HasValue)
-                return BadRequest("QuantidadeEstoque é obrigatório");
+                return BadRequest("QuantidadeEstoque é obrigatório.");
 
             if (!produtoDto.IdCategoria.HasValue || produtoDto.IdCategoria <= 0)
-                return BadRequest("IdCategoria é obrigatório");
+                return BadRequest("IdCategoria é obrigatório.");
 
             if (await _produtoService.ExisteProdutoAsync(produtoDto.Nome, produtoDto.IdCategoria))
-                return BadRequest("Ja existe este produto");
+                return BadRequest("Ja existe este produto.");
+
+            if (!await _categoriaService.ExisteCategoriaAsync(produtoDto.IdCategoria))
+                return BadRequest("Categoria informada não existe.");
 
             var produto = new Produto
             {
@@ -89,7 +86,6 @@ namespace Ecommerce.Monolito.Controller
 
             return CreatedAtAction(nameof(GetProdutoById), new { id = produto.Id }, produtoDto);
         }
-
 
         [HttpPut("{id}", Name = "UpdateProduto")]
         public async Task<IActionResult> UpdateProduto(int id, ProdutoDto produtoDto)

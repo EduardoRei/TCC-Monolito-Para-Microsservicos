@@ -20,7 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ecommerce.Migrations\Ecommerce.Migrations.csproj" />
+    <ProjectReference Include="..\Ecommerce.Commons\Ecommerce.Commons.csproj" />
+    <ProjectReference Include="..\Ecommerce.Migrations\Ecommerce.DbMigrator.csproj" />
   </ItemGroup>
 
 </Project>
