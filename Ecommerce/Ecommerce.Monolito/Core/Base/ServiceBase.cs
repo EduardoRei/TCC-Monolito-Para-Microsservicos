@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Ecommerce.Monolito.Core.Base {
-    public abstract class ServiceBase<TContext> where TContext : DbContext {
+namespace Ecommerce.Monolito.Core.Base
+{
+    public abstract class ServiceBase<TContext> where TContext : DbContext
+    {
         protected readonly TContext DbContext;
 
-        protected ServiceBase(TContext dbContext) {
+        protected ServiceBase(TContext dbContext)
+        {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
@@ -12,7 +15,8 @@ namespace Ecommerce.Monolito.Core.Base {
         /// Salva as alterações no banco de dados.
         /// </summary>
         /// <returns>O número de entradas no banco de dados afetadas.</returns>
-        public virtual int SaveChanges() {
+        public virtual int SaveChanges()
+        {
             return DbContext.SaveChanges();
         }
 
@@ -20,14 +24,16 @@ namespace Ecommerce.Monolito.Core.Base {
         /// Salva as alterações no banco de dados de forma assíncrona.
         /// </summary>
         /// <returns>O número de entradas no banco de dados afetadas.</returns>
-        public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {
+        public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
             return await DbContext.SaveChangesAsync(cancellationToken);
         }
 
         /// <summary>
         /// Método para liberar recursos do DbContext.
         /// </summary>
-        public virtual void Dispose() {
+        public virtual void Dispose()
+        {
             DbContext.Dispose();
         }
     }

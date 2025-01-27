@@ -1,7 +1,9 @@
-﻿using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
 
-namespace Ecommerce.Monolito.Core.Services {
-    public interface IUsuarioService {
+namespace Ecommerce.Monolito.Core.Interface
+{
+    public interface IUsuarioService
+    {
         Task<Usuario> GetUsuarioByIdAsync(int? id);
         Task<List<Usuario>> GetAllUsuariosAsync();
         Task AddUsuarioAsync(Usuario Usuario);

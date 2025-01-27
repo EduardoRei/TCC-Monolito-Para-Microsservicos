@@ -1,6 +1,6 @@
-using Ecommerce.Migrations.Context;
+using Ecommerce.DbMigrator.Context;
 using Ecommerce.Monolito.Core.Interface;
-using Ecommerce.Monolito.Core.Services;
+using Ecommerce.Monolito.Core.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,13 +14,14 @@ builder.Services.AddDbContext<EcommerceDbContext>(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
-builder.Services.AddScoped<ICarrinhoService, CarrinhoService>();
 builder.Services.AddScoped<IPagamentoService, PagamentoService>();
-builder.Services.AddScoped<IProdutoCarrinhoService, ProdutoCarrinhoService>();
-builder.Services.AddScoped<IUsuarioService, UsuarioService>();
-builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IProdutoPedidoService, ProdutoPedidoService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+
 
 var app = builder.Build();
 

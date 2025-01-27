@@ -1,9 +1,12 @@
-﻿using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
 
-namespace Ecommerce.Monolito.Core.Services {
-    public interface IProdutoService {
+namespace Ecommerce.Monolito.Core.Interface
+{
+    public interface IProdutoService
+    {
         Task<Produto> GetProdutoByIdAsync(int? id);
         Task<int> GetQuantidadeProdutoByIdAsync(int? id);
+        Task<List<Produto>> GetListaProdutosByIdListAsync(List<int> listaIds);
         Task<List<Produto>> GetAllProdutosAsync();
         Task AddProdutoAsync(Produto produto);
         Task UpdateProdutoAsync(Produto produto);

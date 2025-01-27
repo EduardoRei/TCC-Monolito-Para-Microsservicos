@@ -1,7 +1,7 @@
-﻿using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
 using Ecommerce.Monolito.Core.Dtos;
 using Ecommerce.Monolito.Core.Interface;
-using Ecommerce.Monolito.Util;
+using Ecommerce.Commons.Util;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Monolito.Controller
@@ -29,7 +29,6 @@ namespace Ecommerce.Monolito.Controller
             return Ok(categoria);
         }
 
-
         [HttpGet(Name = "GetAllCategorias")]
         public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAllCategorias()
         {
@@ -38,7 +37,6 @@ namespace Ecommerce.Monolito.Controller
             return Ok(categorias);
         }
 
-
         [HttpDelete("{id}", Name = "DeleteCategoria")]
         public async Task<IActionResult> DeleteCategoria(int id)
         {
@@ -46,15 +44,13 @@ namespace Ecommerce.Monolito.Controller
             return NoContent();
         }
 
-
-
         [HttpPost(Name = "AddCategoria")]
         public async Task<ActionResult> AddCategoria(CategoriaDto categoriaDto)
         {
             if (string.IsNullOrWhiteSpace(categoriaDto.Nome) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(categoriaDto.Nome))
                 return BadRequest("Nome é obrigatório");
 
-            var existe = await _categoriaService.ExisteCategoriaAsync(categoriaDto.Nome);
+            var existe = await _categoriaService.ExisteNomeCategoriaAsync(categoriaDto.Nome);
 
             if (existe)
                 return BadRequest("Ja existe este categoria");
@@ -68,7 +64,6 @@ namespace Ecommerce.Monolito.Controller
 
             return CreatedAtAction(nameof(GetCategoriaById), new { id = categoria.Id }, categoriaDto);
         }
-
 
         [HttpPut("{id}", Name = "UpdateCategoria")]
         public async Task<IActionResult> UpdateCategoria(int id, CategoriaDto categoriaDto)
@@ -85,9 +80,9 @@ namespace Ecommerce.Monolito.Controller
             }
 
             if (string.IsNullOrWhiteSpace(categoriaDto.Nome) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(categoriaDto.Nome))
-                    return BadRequest("Nome invalido");
+                return BadRequest("Nome invalido");
 
-            if (await _categoriaService.ExisteCategoriaAsync(categoriaDto.Nome))
+            if (await _categoriaService.ExisteNomeCategoriaAsync(categoriaDto.Nome))
                 return BadRequest("O Nome desta categoria ja esta cadastrado");
 
             categoria.Nome = categoriaDto.Nome;
@@ -95,6 +90,5 @@ namespace Ecommerce.Monolito.Controller
 
             return NoContent();
         }
-
     }
 }

@@ -1,10 +1,11 @@
-﻿using Ecommerce.Migrations.Context;
-using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
+using Ecommerce.DbMigrator.Context;
 using Ecommerce.Monolito.Core.Base;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ecommerce.Monolito.Core.Services {
+namespace Ecommerce.Monolito.Core.Service
+{
     public class CategoriaService : ServiceBase<EcommerceDbContext>, ICategoriaService
     {
         public CategoriaService(EcommerceDbContext dbContext) : base(dbContext)
@@ -22,14 +23,23 @@ namespace Ecommerce.Monolito.Core.Services {
             var categoria = await GetCategoriaByIdAsync(id);
             if (categoria != null)
             {
-                DbContext.Categorias.Remove(categoria);
+                DbContext.Categoria.Remove(categoria);
                 await DbContext.SaveChangesAsync();
             }
         }
 
-        public async Task<bool> ExisteCategoriaAsync(string nome)
+        public async Task<bool> ExisteCategoriaAsync(int? id)
         {
-            var categoriaExiste = await DbContext.Categorias.FirstOrDefaultAsync(x => string.Equals(x.Nome, nome, StringComparison.OrdinalIgnoreCase));
+            var categoria = await GetCategoriaByIdAsync(id);
+            if(categoria.Id == id)
+                return true;
+
+            return false;
+        }
+
+        public async Task<bool> ExisteNomeCategoriaAsync(string nome)
+        {
+            var categoriaExiste = await DbContext.Categoria.FirstOrDefaultAsync(x => string.Equals(x.Nome, nome, StringComparison.OrdinalIgnoreCase));
 
             if (categoriaExiste == null || categoriaExiste.Equals(new Categoria()))
                 return false;
@@ -38,7 +48,7 @@ namespace Ecommerce.Monolito.Core.Services {
         }
 
         public async Task<List<Categoria>> GetAllCategoriasAsync() =>
-            await DbContext.Categorias.ToListAsync();
+            await DbContext.Categoria.ToListAsync();
 
         public async Task<Categoria> GetCategoriaByIdAsync(int? id)
         {
@@ -47,11 +57,11 @@ namespace Ecommerce.Monolito.Core.Services {
                 return new Categoria();
             }
 
-            var categoria = await DbContext.Categorias.FirstOrDefaultAsync(x => x.Id == id);
+            var categoria = await DbContext.Categoria.FirstOrDefaultAsync(x => x.Id == id);
 
             if (categoria == null)
             {
-                return new Categoria(); 
+                return new Categoria();
             }
 
             return categoria;

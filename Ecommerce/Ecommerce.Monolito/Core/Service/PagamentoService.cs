@@ -1,9 +1,11 @@
-﻿using Ecommerce.Migrations.Context;
-using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
+using Ecommerce.DbMigrator.Context;
 using Ecommerce.Monolito.Core.Base;
+using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ecommerce.Monolito.Core.Services {
+namespace Ecommerce.Monolito.Core.Service
+{
     public class PagamentoService : ServiceBase<EcommerceDbContext>, IPagamentoService
     {
         public PagamentoService(EcommerceDbContext dbContext) : base(dbContext)
@@ -12,14 +14,11 @@ namespace Ecommerce.Monolito.Core.Services {
 
         public async Task<Pagamento> GetByIdAsync(int id)
         {
-            var pagamento = await DbContext.Pagamentos
-                .Include(p => p.Usuario)
-                .Include(p => p.Carrinho)
-                .Include(p => p.TipoPagamento)
-                .Include(p => p.StatusPagamento)
+            var pagamento = await DbContext.Pagamento
+                .Include(p => p.Pedido)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if(pagamento.Id == 00 || pagamento == null || pagamento.Equals(new Pagamento()))
+            if (pagamento?.Id == 00 || pagamento == null || pagamento.Equals(new Pagamento()))
                 return new Pagamento();
 
             return pagamento;
@@ -27,18 +26,18 @@ namespace Ecommerce.Monolito.Core.Services {
 
         public async Task<IEnumerable<Pagamento>> GetAllAsync()
         {
-            return await DbContext.Pagamentos.ToListAsync();
+            return await DbContext.Pagamento.ToListAsync();
         }
 
         public async Task AddAsync(Pagamento pagamento)
         {
-            DbContext.Pagamentos.Add(pagamento);
+            DbContext.Pagamento.Add(pagamento);
             await DbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Pagamento pagamento)
         {
-            DbContext.Pagamentos.Update(pagamento);
+            DbContext.Pagamento.Update(pagamento);
             await DbContext.SaveChangesAsync();
         }
 
@@ -47,10 +46,16 @@ namespace Ecommerce.Monolito.Core.Services {
             var pagamento = await GetByIdAsync(id);
             if (pagamento != null)
             {
-                DbContext.Pagamentos.Remove(pagamento);
+                DbContext.Pagamento.Remove(pagamento);
                 await DbContext.SaveChangesAsync();
             }
         }
-    }
 
+        public async Task<bool> PagamentoExistsByIdPedido(int idPedido)
+        {
+            var pagamento = await DbContext.Pagamento.FirstOrDefaultAsync(x => x.IdPedido == idPedido);
+
+            return pagamento?.Id != 0;
+        }
+    }
 }

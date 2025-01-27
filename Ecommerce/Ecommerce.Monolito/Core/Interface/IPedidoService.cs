@@ -1,6 +1,6 @@
-﻿using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
 
-namespace Ecommerce.Monolito.Core.Services
+namespace Ecommerce.Monolito.Core.Interface
 {
     public interface IPedidoService
     {

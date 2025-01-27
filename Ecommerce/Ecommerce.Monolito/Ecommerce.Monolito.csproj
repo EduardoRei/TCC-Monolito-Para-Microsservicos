@@ -8,16 +8,20 @@
 
 
   <ItemGroup>
-    <None Include="Ecommerce.Monoliot.csproj.user" />
     <None Include="Ecommerce.Monolito.http" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ecommerce.Migrations\Ecommerce.Migrations.csproj" />
+    <ProjectReference Include="..\Ecommerce.Commons\Ecommerce.Commons.csproj" />
+    <ProjectReference Include="..\Ecommerce.Migrations\Ecommerce.DbMigrator.csproj" />
   </ItemGroup>
 
 </Project>

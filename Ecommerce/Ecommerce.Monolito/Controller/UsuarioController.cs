@@ -1,7 +1,7 @@
-﻿using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.Commons.Entities;
 using Ecommerce.Monolito.Core.Dtos;
-using Ecommerce.Monolito.Core.Services;
-using Ecommerce.Monolito.Util;
+using Ecommerce.Monolito.Core.Interface;
+using Ecommerce.Commons.Util;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Monolito.Controller
@@ -77,7 +77,7 @@ namespace Ecommerce.Monolito.Controller
 
             var (existe, mensagem) = await _usuarioService.ExisteUsuarioAsync(usuarioDto.Email, usuarioDto.CPF);
 
-            if(existe)
+            if (existe)
                 return BadRequest("Ja existe este usuario");
 
             var usuario = new Usuario

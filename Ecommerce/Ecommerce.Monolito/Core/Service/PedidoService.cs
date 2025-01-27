@@ -1,9 +1,11 @@
-﻿using Ecommerce.Migrations.Context;
-using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.DbMigrator.Context;
+using Ecommerce.Commons.Entities;
 using Ecommerce.Monolito.Core.Base;
+using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ecommerce.Monolito.Core.Services {
+namespace Ecommerce.Monolito.Core.Service
+{
     public class PedidoService : ServiceBase<EcommerceDbContext>, IPedidoService
     {
         public PedidoService(EcommerceDbContext dbContext) : base(dbContext)
@@ -12,39 +14,36 @@ namespace Ecommerce.Monolito.Core.Services {
 
         public async Task<Pedido> GetByIdAsync(int id)
         {
-            var pedido = await DbContext.Pedidos
-                .Include(p => p.StatusPagamento)
+            var pedido = await DbContext.Pedido
+                .Include(p => p.Pagamento)
                 .Include(p => p.Usuario)
-                .Include(p => p.Carrinho)
-                .Include(p => p.StatusPedido)
+                .Include(p => p.ProdutoPedido)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (pedido == null)
-                return new Pedido(); // Retorna um pedido vazio caso não encontrado.
+                return new Pedido(); 
 
-            // Verificar se as propriedades do pedido estão nulas e criar instâncias vazias, se necessário.
-            pedido.StatusPagamento ??= new StatusPagamento();
+            pedido.Pagamento ??= new Pagamento();
             pedido.Usuario ??= new Usuario();
-            pedido.Carrinho ??= new Carrinho();
-            pedido.StatusPedido ??= new StatusPedido();
+            pedido.ProdutoPedido ??= [];
 
             return pedido;
         }
 
         public async Task<IEnumerable<Pedido>> GetAllAsync()
         {
-            return await DbContext.Pedidos.ToListAsync();
+            return await DbContext.Pedido.ToListAsync();
         }
 
         public async Task AddAsync(Pedido pedido)
         {
-            DbContext.Pedidos.Add(pedido);
+            DbContext.Pedido.Add(pedido);
             await DbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Pedido pedido)
         {
-            DbContext.Pedidos.Update(pedido);
+            DbContext.Pedido.Update(pedido);
             await DbContext.SaveChangesAsync();
         }
 
@@ -53,7 +52,7 @@ namespace Ecommerce.Monolito.Core.Services {
             var pedido = await GetByIdAsync(id);
             if (pedido != null)
             {
-                DbContext.Pedidos.Remove(pedido);
+                DbContext.Pedido.Remove(pedido);
                 await DbContext.SaveChangesAsync();
             }
         }

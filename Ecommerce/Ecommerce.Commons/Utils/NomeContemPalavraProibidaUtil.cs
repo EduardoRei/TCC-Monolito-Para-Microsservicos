@@ -1,4 +1,4 @@
-﻿namespace Ecommerce.Monolito.Util
+﻿namespace Ecommerce.Commons.Util
 {
     public static class NomeContemPalavraProibidaUtil
     {
@@ -6,6 +6,5 @@
         {
             return nome.Contains("string");
         }
-
     }
 }

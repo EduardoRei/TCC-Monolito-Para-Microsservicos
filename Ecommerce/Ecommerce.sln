@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.Migrations", "Ecommerce.Migrations\Ecommerce.Migrations.csproj", "{5EA755DC-54B5-4496-8AE0-5DF9D496A5FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.DbMigrator", "Ecommerce.Migrations\Ecommerce.DbMigrator.csproj", "{5EA755DC-54B5-4496-8AE0-5DF9D496A5FD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Monolito", "Monolito", "{92A0FA36-3F8C-4EE6-80AB-E4FD84F8F6A6}"
 EndProject
@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Monolito", "Ecommerce.Monolito\Ecommerce.Monolito.csproj", "{39EA781D-5ED6-4B9E-ADE8-83DA50096F71}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Commons", "Commons", "{D5B7BC02-7B49-4245-844F-0F92AB4B09BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Commons", "Ecommerce.Commons\Ecommerce.Commons.csproj", "{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,12 +34,17 @@ Global
 		{39EA781D-5ED6-4B9E-ADE8-83DA50096F71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39EA781D-5ED6-4B9E-ADE8-83DA50096F71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39EA781D-5ED6-4B9E-ADE8-83DA50096F71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{39EA781D-5ED6-4B9E-ADE8-83DA50096F71} = {92A0FA36-3F8C-4EE6-80AB-E4FD84F8F6A6}
+		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250} = {D5B7BC02-7B49-4245-844F-0F92AB4B09BC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7656CD5E-2775-4C56-A1AE-AC24286F333A}

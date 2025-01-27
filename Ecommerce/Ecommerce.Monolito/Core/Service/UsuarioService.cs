@@ -1,10 +1,12 @@
-﻿using Ecommerce.Migrations.Context;
-using Ecommerce.Migrations.Entities;
+﻿using Ecommerce.DbMigrator.Context;
+using Ecommerce.Commons.Entities;
 using Ecommerce.Monolito.Core.Base;
+using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 
-namespace Ecommerce.Monolito.Core.Services {
+namespace Ecommerce.Monolito.Core.Service
+{
     public class UsuarioService : ServiceBase<EcommerceDbContext>, IUsuarioService
     {
         public UsuarioService(EcommerceDbContext dbContext) : base(dbContext)
@@ -22,16 +24,16 @@ namespace Ecommerce.Monolito.Core.Services {
             var usuario = await GetUsuarioByIdAsync(id);
             if (usuario != null)
             {
-                DbContext.Usuarios.Remove(usuario);
+                DbContext.Usuario.Remove(usuario);
                 await DbContext.SaveChangesAsync();
             }
         }
 
         public async Task<(bool existe, string campoExistente)> ExisteUsuarioAsync(string email, string cpf)
         {
-            var listaUsuarios = await DbContext.Usuarios.Where(x => x.Email == email || x.CPF == cpf).ToListAsync();
+            var listaUsuarios = await DbContext.Usuario.Where(x => x.Email == email || x.CPF == cpf).ToListAsync();
 
-            if(listaUsuarios.Count > 0)
+            if (listaUsuarios.Count > 0)
                 return (false, " ");
 
             var sb = new StringBuilder();
@@ -44,21 +46,21 @@ namespace Ecommerce.Monolito.Core.Services {
             }
 
             if (listaUsuarios.Any(x => x.Email == email))
-                if(cpfCadastrado)
+                if (cpfCadastrado)
                     sb.Append($" e ja existe um usuario com o email {email} esta cadastrado.");
                 else
                     sb.Append($"Ja existe um usario cadastarado com o email {email}.");
-                
 
-            return (true, sb.ToString()) ;
+
+            return (true, sb.ToString());
         }
 
         public async Task<List<Usuario>> GetAllUsuariosAsync() =>
-            await DbContext.Usuarios.ToListAsync();
+            await DbContext.Usuario.ToListAsync();
 
         public async Task<Usuario> GetUsuarioByIdAsync(int? id)
         {
-            var usuario = await DbContext.Usuarios.FirstOrDefaultAsync(x => x.Id == id);
+            var usuario = await DbContext.Usuario.FirstOrDefaultAsync(x => x.Id == id);
             if (usuario == null)
                 return new Usuario();
 

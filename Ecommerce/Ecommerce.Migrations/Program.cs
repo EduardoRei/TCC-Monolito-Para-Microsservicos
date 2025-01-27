@@ -1,4 +1,4 @@
-﻿using Ecommerce.Migrations.Context;
+﻿using Ecommerce.DbMigrator.Context;
 using Microsoft.EntityFrameworkCore;
 
 class Program
