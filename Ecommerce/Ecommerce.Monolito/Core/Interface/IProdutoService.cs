@@ -6,6 +6,7 @@ namespace Ecommerce.Monolito.Core.Interface
     {
         Task<Produto> GetProdutoByIdAsync(int? id);
         Task<int> GetQuantidadeProdutoByIdAsync(int? id);
+        Task<List<Produto>> GetListaProdutosByIdListAsync(List<int> listaIds);
         Task<List<Produto>> GetAllProdutosAsync();
         Task AddProdutoAsync(Produto produto);
         Task UpdateProdutoAsync(Produto produto);

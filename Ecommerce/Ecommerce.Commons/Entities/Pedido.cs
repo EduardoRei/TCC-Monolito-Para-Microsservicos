@@ -6,8 +6,7 @@ namespace Ecommerce.Commons.Entities {
         public int IdUsuario { get; set; }
         public int IdPagamento { get; set; }
         public StatusPedidoEnum StatusPedido { get; set; }
-        public long PrecoTotal {  get; set; }
-        public DateTime? DataPagamento { get; set; }
+        public decimal PrecoTotal {  get; set; }
 
         // Relacionamentos
         public Usuario Usuario { get; set; }

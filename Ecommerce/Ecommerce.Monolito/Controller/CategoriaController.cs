@@ -29,7 +29,6 @@ namespace Ecommerce.Monolito.Controller
             return Ok(categoria);
         }
 
-
         [HttpGet(Name = "GetAllCategorias")]
         public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAllCategorias()
         {
@@ -38,15 +37,12 @@ namespace Ecommerce.Monolito.Controller
             return Ok(categorias);
         }
 
-
         [HttpDelete("{id}", Name = "DeleteCategoria")]
         public async Task<IActionResult> DeleteCategoria(int id)
         {
             await _categoriaService.DeleteCategoriaByIdAsync(id);
             return NoContent();
         }
-
-
 
         [HttpPost(Name = "AddCategoria")]
         public async Task<ActionResult> AddCategoria(CategoriaDto categoriaDto)
@@ -68,7 +64,6 @@ namespace Ecommerce.Monolito.Controller
 
             return CreatedAtAction(nameof(GetCategoriaById), new { id = categoria.Id }, categoriaDto);
         }
-
 
         [HttpPut("{id}", Name = "UpdateCategoria")]
         public async Task<IActionResult> UpdateCategoria(int id, CategoriaDto categoriaDto)

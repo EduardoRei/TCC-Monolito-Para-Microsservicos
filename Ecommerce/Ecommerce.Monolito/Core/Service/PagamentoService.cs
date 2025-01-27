@@ -50,5 +50,12 @@ namespace Ecommerce.Monolito.Core.Service
                 await DbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<bool> PagamentoExistsByIdPedido(int idPedido)
+        {
+            var pagamento = await DbContext.Pagamento.FirstOrDefaultAsync(x => x.IdPedido == idPedido);
+
+            return pagamento?.Id != 0;
+        }
     }
 }

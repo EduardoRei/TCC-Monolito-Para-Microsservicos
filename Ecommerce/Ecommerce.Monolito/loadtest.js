@@ -8,76 +8,83 @@ const myTrend = new Trend('request_duration');
 // Configuração do teste
 export const options = {
     stages: [
-        { duration: '30s', target: 10 },   // Aumenta para 10 usuários simultâneos
-        { duration: '1m', target: 50 },    // Escala para 50 usuários simultâneos
-        { duration: '30s', target: 0 },    // Diminui para 0 usuários
+        { duration: '1m', target: 20 },   // Aumenta para 20 usuários simultâneos
+        { duration: '2m', target: 50 },   // Escala para 50 usuários simultâneos
+        { duration: '1m', target: 100 },  // Escala para 100 usuários simultâneos
+        { duration: '1m', target: 0 },    // Diminui para 0 usuários
     ],
 };
 
-const BASE_URL = 'https://localhost:7224/api'; // Alterar para sua URL de API
+const BASE_URL = 'https://localhost:44383/api'; // Alterar para sua URL de API
 
 // Função principal
 export default function () {
-    const carrinhoId = Math.floor(Math.random() * 100);
+    const userId = Math.floor(Math.random() * 100);
 
-    // 1. Testa a criação de Produto
-    const produtoPayload = JSON.stringify({
-        idCategoria: Math.floor(Math.random() * 10) + 1,
-        nome: `Produto-${Math.random().toString(36).substring(7)}`,
-        quantidadeEstoque: Math.floor(Math.random() * 100),
-        precoUnitario: (Math.random() * 100).toFixed(2),
-    });
+    // 1. Criação de 100 usuários
+    for (let i = 0; i < 100; i++) {
+        const userPayload = JSON.stringify({
+            nome: `Usuario-${Math.random().toString(36).substring(7)}`,
+            email: `usuario${i}@teste.com`,
+            endereco: `Endereco ${i}`,
+            cpf: `000.000.000-${i.toString().padStart(2, '0')}`,
+            senha: 'senha123',
+            dataNascimento: new Date().toISOString(),
+        });
 
-    const headers = { 'Content-Type': 'application/json' };
-    const produtoRes = http.post(`${BASE_URL}/Produto`, produtoPayload, { headers });
-    check(produtoRes, {
-        'Produto criado com sucesso': (res) => res.status === 201 || res.status === 400,
-    });
+        const headers = { 'Content-Type': 'application/json' };
+        const userRes = http.post(`${BASE_URL}/Usuario`, userPayload, { headers });
+        check(userRes, {
+            'Usuário criado com sucesso': (res) => res.status === 201 || res.status === 400,
+        });
+    }
 
-    // 2. Testa o endpoint de Carrinho
-    const carrinhoRes = http.get(`${BASE_URL}/Carrinho/${carrinhoId}`);
-    check(carrinhoRes, {
-        'Carrinho carregado com sucesso': (res) => res.status === 200 || res.status === 404,
-    });
+    // 2. Edição de 100 usuários
+    for (let i = 0; i < 100; i++) {
+        const userPayload = JSON.stringify({
+            nome: `Usuario-Editado-${Math.random().toString(36).substring(7)}`,
+            email: `usuario${i}@teste.com`,
+            endereco: `Endereco Editado ${i}`,
+            cpf: `000.000.000-${i.toString().padStart(2, '0')}`,
+            senha: 'senha123',
+            dataNascimento: new Date().toISOString(),
+        });
 
-    // 3. Simula a criação de um novo Pedido
-    const pedidoPayload = JSON.stringify({
-        idUsuario: Math.floor(Math.random() * 10),
-        idCarrinho: carrinhoId,
-        idStatusPagamento: 1,
-        dataPedido: new Date().toISOString(),
-        idStatusPedido: 1,
-    });
+        const headers = { 'Content-Type': 'application/json' };
+        const userRes = http.put(`${BASE_URL}/Usuario/${i}`, userPayload, { headers });
+        check(userRes, {
+            'Usuário editado com sucesso': (res) => res.status === 200 || res.status === 400,
+        });
+    }
 
-    const pedidoRes = http.post(`${BASE_URL}/Pedido`, pedidoPayload, { headers });
-    check(pedidoRes, {
-        'Pedido criado com sucesso': (res) => res.status === 201 || res.status === 400,
-    });
+    // 3. Exclusão de 20 usuários
+    for (let i = 0; i < 20; i++) {
+        const deleteRes = http.del(`${BASE_URL}/Usuario/${i}`);
+        check(deleteRes, {
+            'Usuário excluído com sucesso': (res) => res.status === 204 || res.status === 404,
+        });
+    }
 
-    // 4. Simula a atualização de um Pagamento
-    const pagamentoPayload = JSON.stringify({
-        id: Math.floor(Math.random() * 100),
-        idUsuario: Math.floor(Math.random() * 10),
-        idCarrinho: carrinhoId,
-        idTipoPagamento: 1,
-        idStatusPagamento: 2,
-        valorCarrinho: (Math.random() * 100).toFixed(2),
-        data: new Date().toISOString(),
-    });
+    // 4. Criação de pedidos com os 80 usuários restantes
+    let pedidoRes;
+    for (let i = 20; i < 100; i++) {
+        const pedidoPayload = JSON.stringify({
+            idUsuario: i,
+            idCarrinho: Math.floor(Math.random() * 100),
+            idStatusPagamento: 1,
+            dataPedido: new Date().toISOString(),
+            idStatusPedido: 1,
+        });
 
-    const pagamentoRes = http.put(`${BASE_URL}/Pagamento`, pagamentoPayload, { headers });
-    check(pagamentoRes, {
-        'Pagamento atualizado com sucesso': (res) => res.status === 204 || res.status === 400,
-    });
-
-    // 5. Simula a exclusão de um Pedido
-    const deleteRes = http.del(`${BASE_URL}/Pedido/${Math.floor(Math.random() * 100)}`);
-    check(deleteRes, {
-        'Pedido excluído com sucesso': (res) => res.status === 204 || res.status === 404,
-    });
+        const headers = { 'Content-Type': 'application/json' };
+        pedidoRes = http.post(`${BASE_URL}/Pedido`, pedidoPayload, { headers });
+        check(pedidoRes, {
+            'Pedido criado com sucesso': (res) => res.status === 201 || res.status === 400,
+        });
+    }
 
     // Registra a métrica de duração da requisição
-    myTrend.add(produtoRes.timings.duration);
+    myTrend.add(pedidoRes.timings.duration);
 
     sleep(1); // Pausa entre as requisições
 }

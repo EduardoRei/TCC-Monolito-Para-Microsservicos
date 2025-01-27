@@ -41,6 +41,11 @@ namespace Ecommerce.Monolito.Core.Service
         public async Task<List<Produto>> GetAllProdutosAsync() =>
             await DbContext.Produto.ToListAsync();
 
+        public async Task<List<Produto>> GetListaProdutosByIdListAsync(List<int> listaIds)
+        {
+            return await DbContext.Produto.Where(x => listaIds.Contains(x.Id)).ToListAsync();
+        }
+
         public async Task<Produto> GetProdutoByIdAsync(int? id)
         {
             var produto = await DbContext.Produto.FirstOrDefaultAsync(x => x.Id == id);

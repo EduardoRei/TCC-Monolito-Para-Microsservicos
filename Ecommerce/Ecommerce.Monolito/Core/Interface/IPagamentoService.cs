@@ -6,6 +6,7 @@ namespace Ecommerce.Monolito.Core.Interface
     {
         Task<Pagamento> GetByIdAsync(int id);
         Task<IEnumerable<Pagamento>> GetAllAsync();
+        Task<bool> PagamentoExistsByIdPedido(int idPedido);
         Task AddAsync(Pagamento pagamento);
         Task UpdateAsync(Pagamento pagamento);
         Task DeleteAsync(int id); 

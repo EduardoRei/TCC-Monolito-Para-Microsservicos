@@ -1,4 +1,5 @@
 ﻿using Ecommerce.Commons.Entities;
+using Ecommerce.Commons.Enums;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,6 +43,19 @@ namespace Ecommerce.Monolito.Controller
         [HttpPut]
         public async Task<IActionResult> Update(Pagamento pagamento)
         {
+            await _service.UpdateAsync(pagamento);
+            return NoContent();
+        }
+
+        [HttpPut("AlterarFormaPagamento")]
+        public async Task<IActionResult> UpdateFormaPagamento(int id, FormaPagamentoEnum formaPagamento)
+        {
+            var pagamento = await _service.GetByIdAsync(id);
+            if (pagamento == null || pagamento == new Pagamento())
+            {
+                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {id}, Id não encontrado.");
+            }
+            pagamento.FormaPagamento = formaPagamento;
             await _service.UpdateAsync(pagamento);
             return NoContent();
         }
