@@ -3,6 +3,8 @@ using Ecommerce.Commons.Entities;
 using Ecommerce.Monolito.Core.Base;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
+using Ecommerce.Monolito.Core.Dtos;
+using Ecommerce.Monolito.Core.Extensions;
 
 namespace Ecommerce.Monolito.Core.Service
 {
@@ -12,46 +14,42 @@ namespace Ecommerce.Monolito.Core.Service
         {
         }
 
-        public async Task<Pedido> GetByIdAsync(int id)
+        public async Task<PedidoDto?> GetByIdAsync(int id)
         {
-            var pedido = await DbContext.Pedido
+            return await DbContext.Pedido
                 .Include(p => p.Pagamento)
                 .Include(p => p.Usuario)
                 .Include(p => p.ProdutoPedido)
+                .Select(p => p.ToDto())
                 .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (pedido == null)
-                return new Pedido(); 
-
-            pedido.Pagamento ??= new Pagamento();
-            pedido.Usuario ??= new Usuario();
-            pedido.ProdutoPedido ??= [];
-
-            return pedido;
         }
 
-        public async Task<IEnumerable<Pedido>> GetAllAsync()
-        {
-            return await DbContext.Pedido.ToListAsync();
-        }
+        public async Task<IEnumerable<PedidoDto>> GetAllAsync()
+            => await DbContext.Pedido
+                .Include(p => p.Pagamento)
+                .Include(p => p.Usuario)
+                .Include(p => p.ProdutoPedido)
+                .Select(p => p.ToDto())
+                .ToListAsync();
 
-        public async Task AddAsync(Pedido pedido)
+        public async Task AddAsync(PedidoDto pedido)
         {
-            DbContext.Pedido.Add(pedido);
+            DbContext.Pedido.Add(pedido.ToEntity());
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Pedido pedido)
+        public async Task UpdateAsync(PedidoDto pedido)
         {
-            DbContext.Pedido.Update(pedido);
+            DbContext.Pedido.Update(pedido.ToEntity());
             await DbContext.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var pedido = await GetByIdAsync(id);
-            if (pedido != null)
+            var pedidoDto = await GetByIdAsync(id);
+            if (pedidoDto != null)
             {
+                var pedido = pedidoDto.ToEntity();
                 DbContext.Pedido.Remove(pedido);
                 await DbContext.SaveChangesAsync();
             }

@@ -1,14 +1,14 @@
-﻿using Ecommerce.Commons.Entities;
+﻿using Ecommerce.Monolito.Core.Dtos;
 
 namespace Ecommerce.Monolito.Core.Interface
 {
     public interface IPagamentoService
     {
-        Task<Pagamento> GetByIdAsync(int id);
-        Task<IEnumerable<Pagamento>> GetAllAsync();
+        Task<PagamentoDto?> GetByIdAsync(int id);
+        Task<IEnumerable<PagamentoDto>> GetAllAsync();
         Task<bool> PagamentoExistsByIdPedido(int idPedido);
-        Task AddAsync(Pagamento pagamento);
-        Task UpdateAsync(Pagamento pagamento);
+        Task AddAsync(PagamentoDto pagamento);
+        Task UpdateAsync(PagamentoDto pagamento);
         Task DeleteAsync(int id); 
     }
 }

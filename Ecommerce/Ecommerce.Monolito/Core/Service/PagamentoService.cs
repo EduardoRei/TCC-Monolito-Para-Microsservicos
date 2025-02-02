@@ -1,6 +1,8 @@
 ﻿using Ecommerce.Commons.Entities;
 using Ecommerce.DbMigrator.Context;
 using Ecommerce.Monolito.Core.Base;
+using Ecommerce.Monolito.Core.Dtos;
+using Ecommerce.Monolito.Core.Extensions;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,40 +14,36 @@ namespace Ecommerce.Monolito.Core.Service
         {
         }
 
-        public async Task<Pagamento> GetByIdAsync(int id)
-        {
-            var pagamento = await DbContext.Pagamento
+        public async Task<PagamentoDto?> GetByIdAsync(int id)
+            => await DbContext.Pagamento
                 .Include(p => p.Pedido)
+                .Select(p => p.ToDto())
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (pagamento?.Id == 00 || pagamento == null || pagamento.Equals(new Pagamento()))
-                return new Pagamento();
+        public async Task<IEnumerable<PagamentoDto>> GetAllAsync()
+            => await DbContext.Pagamento
+                .Include(p => p.Pedido)
+                .Select(p => p.ToDto())
+                .ToListAsync();
 
-            return pagamento;
-        }
-
-        public async Task<IEnumerable<Pagamento>> GetAllAsync()
+        public async Task AddAsync(PagamentoDto pagamento)
         {
-            return await DbContext.Pagamento.ToListAsync();
-        }
-
-        public async Task AddAsync(Pagamento pagamento)
-        {
-            DbContext.Pagamento.Add(pagamento);
+            DbContext.Pagamento.Add(pagamento.ToEntity());
             await DbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Pagamento pagamento)
+        public async Task UpdateAsync(PagamentoDto pagamento)
         {
-            DbContext.Pagamento.Update(pagamento);
+            DbContext.Pagamento.Update(pagamento.ToEntity());
             await DbContext.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var pagamento = await GetByIdAsync(id);
-            if (pagamento != null)
+            var pagamentoDto = await GetByIdAsync(id);
+            if (pagamentoDto != null)
             {
+                var pagamento = pagamentoDto.ToEntity();
                 DbContext.Pagamento.Remove(pagamento);
                 await DbContext.SaveChangesAsync();
             }
