@@ -23,7 +23,7 @@ namespace Ecommerce.Monolito.Controller
         public async Task<ActionResult<ProdutoDto>> GetProdutoById(int id)
         {
             var produto = await _produtoService.GetProdutoByIdAsync(id);
-            if (produto == null || produto.Equals(new Produto()))
+            if (produto == null)
             {
                 return NotFound();
             }
@@ -74,31 +74,23 @@ namespace Ecommerce.Monolito.Controller
             if (!await _categoriaService.ExisteCategoriaAsync(produtoDto.IdCategoria))
                 return BadRequest("Categoria informada não existe.");
 
-            var produto = new Produto
-            {
-                Nome = produtoDto.Nome,
-                PrecoUnitario = produtoDto.PrecoUnitario.Value,
-                QuantidadeEstoque = produtoDto.QuantidadeEstoque.Value,
-                IdCategoria = produtoDto.IdCategoria.Value
-            };
+            await _produtoService.AddProdutoAsync(produtoDto);
 
-            await _produtoService.AddProdutoAsync(produto);
-
-            return CreatedAtAction(nameof(GetProdutoById), new { id = produto.Id }, produtoDto);
+            return CreatedAtAction(nameof(GetProdutoById), new { id = produtoDto.Id }, produtoDto);
         }
 
         [HttpPut("{id}", Name = "UpdateProduto")]
-        public async Task<IActionResult> UpdateProduto(int id, ProdutoDto produtoDto)
+        public async Task<IActionResult> UpdateProduto(ProdutoDto produtoDto)
         {
-            if (id <= 0)
+            if (produtoDto.Id <= 0)
             {
-                return BadRequest();
+                return BadRequest("Id não encontrado.");
             }
 
-            var produto = await _produtoService.GetProdutoByIdAsync(id);
+            var produto = await _produtoService.GetProdutoByIdAsync(produtoDto.Id);
             if (produto == null)
             {
-                return NotFound();
+                return NotFound($"Nenhum produto foi encontrado com o id: {produtoDto.Id}");
             }
 
             if (produtoDto.QuantidadeEstoque.HasValue && produtoDto.QuantidadeEstoque > 0)
@@ -110,7 +102,8 @@ namespace Ecommerce.Monolito.Controller
             if (produtoDto.PrecoUnitario.HasValue && produtoDto.PrecoUnitario > 0)
                 produto.PrecoUnitario = produtoDto.PrecoUnitario.Value;
 
-            if (!string.IsNullOrWhiteSpace(produtoDto.Nome) && !NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(produtoDto.Nome))
+            if (!string.IsNullOrWhiteSpace(produtoDto.Nome) 
+                && !NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(produtoDto.Nome))
                 produto.Nome = produtoDto.Nome;
 
             await _produtoService.UpdateProdutoAsync(produto);

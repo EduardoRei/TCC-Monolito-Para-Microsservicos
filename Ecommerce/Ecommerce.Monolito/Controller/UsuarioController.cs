@@ -22,7 +22,7 @@ namespace Ecommerce.Monolito.Controller
         public async Task<ActionResult<UsuarioDto>> GetUsuarioById(int id)
         {
             var usuario = await _usuarioService.GetUsuarioByIdAsync(id);
-            if (usuario == null || usuario.Equals(new Usuario()))
+            if (usuario == null)
             {
                 return NotFound();
             }
@@ -58,7 +58,6 @@ namespace Ecommerce.Monolito.Controller
             if (string.IsNullOrWhiteSpace(usuarioDto.Email) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(usuarioDto.Email))
                 return BadRequest("Email é obrigatório");
 
-
             if (ValidarEmail(usuarioDto.Email))
                 return BadRequest("Email é invalido");
 
@@ -80,33 +79,24 @@ namespace Ecommerce.Monolito.Controller
             if (existe)
                 return BadRequest("Ja existe este usuario");
 
-            var usuario = new Usuario
-            {
-                Nome = usuarioDto.Nome,
-                Endereco = usuarioDto.Endereco,
-                Senha = usuarioDto.Senha,
-                CPF = usuarioDto.CPF,
-                Email = usuarioDto.Email
-            };
+            await _usuarioService.AddUsuarioAsync(usuarioDto);
 
-            await _usuarioService.AddUsuarioAsync(usuario);
-
-            return CreatedAtAction(nameof(GetUsuarioById), new { id = usuario.Id }, usuarioDto);
+            return CreatedAtAction(nameof(GetUsuarioById), new { id = usuarioDto.Id }, usuarioDto);
         }
 
 
         [HttpPut("{id}", Name = "UpdateUsuario")]
-        public async Task<IActionResult> UpdateUsuario(int id, UsuarioDto usuarioDto)
+        public async Task<IActionResult> UpdateUsuario(UsuarioDto usuarioDto)
         {
-            if (id <= 0)
+            if (usuarioDto.Id <= 0)
             {
                 return BadRequest();
             }
 
-            var usuario = await _usuarioService.GetUsuarioByIdAsync(id);
+            var usuario = await _usuarioService.GetUsuarioByIdAsync(usuarioDto.Id);
             if (usuario == null)
             {
-                return NotFound();
+                return NotFound($"Nenhum usuario foi encontrado com o id: {usuarioDto.Id}");
             }
 
             if (!string.IsNullOrWhiteSpace(usuarioDto.Nome) || !NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(usuarioDto.Nome))

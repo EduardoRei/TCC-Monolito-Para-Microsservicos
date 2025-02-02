@@ -21,10 +21,8 @@ namespace Ecommerce.Monolito.Controller
         public async Task<ActionResult<CategoriaDto>> GetCategoriaById(int id)
         {
             var categoria = await _categoriaService.GetCategoriaByIdAsync(id);
-            if (categoria == null || categoria.Equals(new Categoria()))
-            {
-                return NotFound();
-            }
+            if (categoria == null)
+                return NotFound("Categoria informada não encontrada.");
 
             return Ok(categoria);
         }
@@ -55,14 +53,9 @@ namespace Ecommerce.Monolito.Controller
             if (existe)
                 return BadRequest("Ja existe este categoria");
 
-            var categoria = new Categoria
-            {
-                Nome = categoriaDto.Nome,
-            };
+            await _categoriaService.AddCategoriaAsync(categoriaDto);
 
-            await _categoriaService.AddCategoriaAsync(categoria);
-
-            return CreatedAtAction(nameof(GetCategoriaById), new { id = categoria.Id }, categoriaDto);
+            return CreatedAtAction(nameof(GetCategoriaById), new { id = categoriaDto.Id }, categoriaDto);
         }
 
         [HttpPut("{id}", Name = "UpdateCategoria")]
@@ -85,8 +78,7 @@ namespace Ecommerce.Monolito.Controller
             if (await _categoriaService.ExisteNomeCategoriaAsync(categoriaDto.Nome))
                 return BadRequest("O Nome desta categoria ja esta cadastrado");
 
-            categoria.Nome = categoriaDto.Nome;
-            await _categoriaService.UpdateCategoriaAsync(categoria);
+            await _categoriaService.UpdateCategoriaAsync(categoriaDto);
 
             return NoContent();
         }

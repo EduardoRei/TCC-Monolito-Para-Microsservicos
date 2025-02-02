@@ -3,6 +3,8 @@ using Ecommerce.Commons.Entities;
 using Ecommerce.Monolito.Core.Base;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
+using Ecommerce.Monolito.Core.Dtos;
+using Ecommerce.Monolito.Core.Extensions;
 
 namespace Ecommerce.Monolito.Core.Service
 {
@@ -12,41 +14,36 @@ namespace Ecommerce.Monolito.Core.Service
         {
         }
 
-        public async Task AddAsync(ProdutoPedido produtoPedido)
+        public async Task AddAsync(ProdutoPedidoDto produtoPedido)
         {
-            DbContext.ProdutoPedido.Add(produtoPedido);
+            DbContext.ProdutoPedido.Add(produtoPedido.ToEntity());
             await DbContext.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int idPedido, int idProduto)
         {
-            var entity = await GetByIdAsync(idPedido, idProduto);
-            if (entity != null)
+            var produtoPedidoDto = await GetByIdAsync(idPedido, idProduto);
+            if (produtoPedidoDto != null)
             {
-                DbContext.ProdutoPedido.Remove(entity);
+                var produtoPedido = produtoPedidoDto.ToEntity();
+                DbContext.ProdutoPedido.Remove(produtoPedido);
                 await DbContext.SaveChangesAsync();
             }
         }
 
-        public async Task<IEnumerable<ProdutoPedido>> GetAllAsync()
-            => await DbContext.ProdutoPedido.ToListAsync();
+        public async Task<IEnumerable<ProdutoPedidoDto>> GetAllAsync()
+            => await DbContext.ProdutoPedido.Select(pp => pp.ToDto()).ToListAsync();
 
-        public async Task<ProdutoPedido> GetByIdAsync(int idPedido, int idProduto)
-        {
-            var produtoPedido = await DbContext.ProdutoPedido
+        public async Task<ProdutoPedidoDto?> GetByIdAsync(int idPedido, int idProduto)
+            => await DbContext.ProdutoPedido
                 .Include(pc => pc.Pedido)
                 .Include(pc => pc.Produto)
+                .Select(pc => pc.ToDto())
                 .FirstOrDefaultAsync(pc => pc.IdPedido == idPedido && pc.IdProduto == idProduto);
 
-            if (produtoPedido?.IdPedido == 0 || produtoPedido == null)
-                return new ProdutoPedido();
-
-            return produtoPedido;
-        }
-
-        public async Task UpdateAsync(ProdutoPedido produtoPedido)
+        public async Task UpdateAsync(ProdutoPedidoDto produtoPedido)
         {
-            DbContext.ProdutoPedido.Update(produtoPedido);
+            DbContext.ProdutoPedido.Update(produtoPedido.ToEntity());
             await DbContext.SaveChangesAsync();
         }
     }

@@ -1,6 +1,8 @@
 ﻿using Ecommerce.Commons.Entities;
 using Ecommerce.DbMigrator.Context;
 using Ecommerce.Monolito.Core.Base;
+using Ecommerce.Monolito.Core.Dtos;
+using Ecommerce.Monolito.Core.Extensions;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,17 +14,18 @@ namespace Ecommerce.Monolito.Core.Service
         {
         }
 
-        public async Task AddCategoriaAsync(Categoria categoria)
+        public async Task AddCategoriaAsync(CategoriaDto categoria)
         {
-            await DbContext.AddAsync(categoria);
+            await DbContext.Categoria.AddAsync(categoria.ToEntity());
             await DbContext.SaveChangesAsync();
         }
 
         public async Task DeleteCategoriaByIdAsync(int id)
         {
-            var categoria = await GetCategoriaByIdAsync(id);
-            if (categoria != null)
+            var categoriaDto = await GetCategoriaByIdAsync(id);
+            if (categoriaDto != null)
             {
+                var categoria = categoriaDto.ToEntity();
                 DbContext.Categoria.Remove(categoria);
                 await DbContext.SaveChangesAsync();
             }
@@ -31,45 +34,30 @@ namespace Ecommerce.Monolito.Core.Service
         public async Task<bool> ExisteCategoriaAsync(int? id)
         {
             var categoria = await GetCategoriaByIdAsync(id);
-            if(categoria.Id == id)
-                return true;
-
-            return false;
+            return categoria?.Id == id;
         }
 
         public async Task<bool> ExisteNomeCategoriaAsync(string nome)
         {
             var categoriaExiste = await DbContext.Categoria.FirstOrDefaultAsync(x => string.Equals(x.Nome, nome, StringComparison.OrdinalIgnoreCase));
 
-            if (categoriaExiste == null || categoriaExiste.Equals(new Categoria()))
-                return false;
-
-            return true;
+            return categoriaExiste != null;
         }
 
-        public async Task<List<Categoria>> GetAllCategoriasAsync() =>
-            await DbContext.Categoria.ToListAsync();
+        public async Task<List<CategoriaDto>> GetAllCategoriasAsync()
+            => await DbContext.Categoria
+                                  .Select(categoria => categoria.ToDto())
+                                  .ToListAsync();
 
-        public async Task<Categoria> GetCategoriaByIdAsync(int? id)
+        public async Task<CategoriaDto?> GetCategoriaByIdAsync(int? id)
+            => await DbContext.Categoria
+                              .Where(categoria => categoria.Id == id)
+                              .Select(categoria => categoria.ToDto())
+                              .FirstOrDefaultAsync();
+
+        public async Task UpdateCategoriaAsync(CategoriaDto categoria)
         {
-            if (id == null || id <= 0)
-            {
-                return new Categoria();
-            }
-
-            var categoria = await DbContext.Categoria.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (categoria == null)
-            {
-                return new Categoria();
-            }
-
-            return categoria;
-        }
-
-        public async Task UpdateCategoriaAsync(Categoria categoria)
-        {
-            DbContext.Update(categoria);
+            DbContext.Categoria.Update(categoria.ToEntity());
             await DbContext.SaveChangesAsync();
         }
     }

@@ -1,13 +1,13 @@
-﻿using Ecommerce.Commons.Entities;
+﻿using Ecommerce.Monolito.Core.Dtos;
 
 namespace Ecommerce.Monolito.Core.Interface
 {
     public interface IPedidoService
     {
-        Task<Pedido> GetByIdAsync(int id);
-        Task<IEnumerable<Pedido>> GetAllAsync();
-        Task AddAsync(Pedido pedido);
-        Task UpdateAsync(Pedido pedido);
+        Task<PedidoDto?> GetByIdAsync(int id);
+        Task<IEnumerable<PedidoDto>> GetAllAsync();
+        Task AddAsync(PedidoDto pedido);
+        Task UpdateAsync(PedidoDto pedido);
         Task DeleteAsync(int id);
     }
 }

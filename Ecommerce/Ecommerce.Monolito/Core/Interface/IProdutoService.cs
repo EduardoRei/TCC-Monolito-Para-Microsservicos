@@ -1,15 +1,15 @@
-﻿using Ecommerce.Commons.Entities;
+﻿using Ecommerce.Monolito.Core.Dtos;
 
 namespace Ecommerce.Monolito.Core.Interface
 {
     public interface IProdutoService
     {
-        Task<Produto> GetProdutoByIdAsync(int? id);
+        Task<ProdutoDto?> GetProdutoByIdAsync(int? id);
         Task<int> GetQuantidadeProdutoByIdAsync(int? id);
-        Task<List<Produto>> GetListaProdutosByIdListAsync(List<int> listaIds);
-        Task<List<Produto>> GetAllProdutosAsync();
-        Task AddProdutoAsync(Produto produto);
-        Task UpdateProdutoAsync(Produto produto);
+        Task<List<ProdutoDto>> GetListaProdutosByIdListAsync(List<int> listaIds);
+        Task<List<ProdutoDto>> GetAllProdutosAsync();
+        Task AddProdutoAsync(ProdutoDto produto);
+        Task UpdateProdutoAsync(ProdutoDto produto);
         Task DeleteProdutoByIdAsync(int id);
         Task<bool> ExisteProdutoAsync(string nome, int? idCategoria);
     }

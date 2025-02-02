@@ -49,14 +49,14 @@ namespace Ecommerce.Monolito.Controller
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(PedidoDto pedidoDto)
+        public async Task<IActionResult> Add(PedidoDto pedidoDto, FormaPagamentoEnum formaPagamento)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
                     var usuario = await _usuarioService.GetUsuarioByIdAsync(pedidoDto.IdUsuario);
-                    decimal precoTotal = 0;
+                    long precoTotal = 0;
 
                     if (usuario == null)
                         return BadRequest("Usuário não encontrado");
@@ -73,48 +73,33 @@ namespace Ecommerce.Monolito.Controller
                     {
                         var produtoPedido = pedidoDto.ProdutoPedido.FirstOrDefault(x => x.IdProduto == produto.Id);
                         if (produto.QuantidadeEstoque < produtoPedido?.Quantidade_Produto)
-                        {
-                            return BadRequest("Quantidade de produto insuficiente no estoque");
-                        }
-                        precoTotal += produto.PrecoUnitario * (decimal)(produtoPedido?.Quantidade_Produto ?? 0);
+                            return BadRequest($"A Quantidade solicitada de produto {produto.Nome} é maior do que a quantidade disponivel no estoque.");
+
+                        precoTotal += (long)(produto.PrecoUnitario ?? 0 * (produtoPedido?.Quantidade_Produto ?? 0));
                     }
 
-                    Pedido pedido = new Pedido
-                    {
-                        Id = 0,
-                        IdUsuario = pedidoDto.IdUsuario,
-                        IdPagamento = 0,
-                        StatusPedido = StatusPedidoEnum.SeparandoPedido,
-                        PrecoTotal = precoTotal
-                    };
+                    pedidoDto.StatusPedido = StatusPedidoEnum.SeparandoPedido;
+                    pedidoDto.PrecoTotal = precoTotal;
 
-                    await _service.AddAsync(pedido);
+                    await _service.AddAsync(pedidoDto);
 
                     foreach (var pedidoProdutoDto in pedidoDto.ProdutoPedido)
                     {
-                        var produtoPedido = new ProdutoPedido
-                        {
-                            IdPedido = pedido.Id,
-                            IdProduto = pedidoProdutoDto.IdProduto,
-                            Quantidade_Produto = pedidoProdutoDto.Quantidade_Produto
-                        };
-
-                        await _produtoPedidoService.AddAsync(produtoPedido);
+                        await _produtoPedidoService.AddAsync(pedidoProdutoDto);
                     }
 
-                    if (await _pagamentoService.PagamentoExistsByIdPedido(pedido.Id))
+                    if (await _pagamentoService.PagamentoExistsByIdPedido(pedidoDto.Id))
                         return BadRequest("Pagamento já cadastrado para este pedido");
 
-                    await _pagamentoService.AddAsync(new Pagamento
+                    await _pagamentoService.AddAsync(new PagamentoDto
                     {
-                        Id = 0,
-                        IdPedido = pedido.Id,
-                        FormaPagamento = pedidoDto.FormaPagamento,
+                        IdPedido = pedidoDto.Id,
+                        FormaPagamento = formaPagamento,
                         StatusPagamento = StatusPagamentoEnum.AguardandoPagamento
                     });
 
                     transaction.Complete();
-                    return CreatedAtAction(nameof(Get), new { id = pedido.Id }, pedido);
+                    return CreatedAtAction(nameof(Get), new { id = pedidoDto.Id }, pedidoDto);
                 }
                 catch (Exception)
                 {
@@ -124,7 +109,7 @@ namespace Ecommerce.Monolito.Controller
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(Pedido pedido)
+        public async Task<IActionResult> Update(PedidoDto pedido)
         {
             await _service.UpdateAsync(pedido);
             return NoContent();

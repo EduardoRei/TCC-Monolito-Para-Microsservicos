@@ -4,6 +4,8 @@ using Ecommerce.Monolito.Core.Base;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
+using Ecommerce.Monolito.Core.Dtos;
+using Ecommerce.Monolito.Core.Extensions;
 
 namespace Ecommerce.Monolito.Core.Service
 {
@@ -13,17 +15,18 @@ namespace Ecommerce.Monolito.Core.Service
         {
         }
 
-        public async Task AddUsuarioAsync(Usuario usuario)
+        public async Task AddUsuarioAsync(UsuarioDto usuario)
         {
-            await DbContext.AddAsync(usuario);
+            await DbContext.Usuario.AddAsync(usuario.ToEntity());
             await DbContext.SaveChangesAsync();
         }
 
         public async Task DeleteUsuarioByIdAsync(int id)
         {
-            var usuario = await GetUsuarioByIdAsync(id);
-            if (usuario != null)
+            var usuarioDto = await GetUsuarioByIdAsync(id);
+            if (usuarioDto != null)
             {
+                var usuario = usuarioDto.ToEntity();
                 DbContext.Usuario.Remove(usuario);
                 await DbContext.SaveChangesAsync();
             }
@@ -51,25 +54,18 @@ namespace Ecommerce.Monolito.Core.Service
                 else
                     sb.Append($"Ja existe um usario cadastarado com o email {email}.");
 
-
             return (true, sb.ToString());
         }
 
-        public async Task<List<Usuario>> GetAllUsuariosAsync() =>
-            await DbContext.Usuario.ToListAsync();
+        public async Task<List<UsuarioDto>> GetAllUsuariosAsync() =>
+            await DbContext.Usuario.Select(p => p.ToDto()).ToListAsync();
 
-        public async Task<Usuario> GetUsuarioByIdAsync(int? id)
+        public async Task<UsuarioDto?> GetUsuarioByIdAsync(int? id) =>
+            await DbContext.Usuario.Select(p => p.ToDto()).FirstOrDefaultAsync(x => x.Id == id);
+
+        public async Task UpdateUsuarioAsync(UsuarioDto usuario)
         {
-            var usuario = await DbContext.Usuario.FirstOrDefaultAsync(x => x.Id == id);
-            if (usuario == null)
-                return new Usuario();
-
-            return usuario;
-        }
-
-        public async Task UpdateUsuarioAsync(Usuario usuario)
-        {
-            DbContext.Update(usuario);
+            DbContext.Usuario.Update(usuario.ToEntity());
             await DbContext.SaveChangesAsync();
         }
     }
