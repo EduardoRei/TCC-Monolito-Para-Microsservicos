@@ -1,5 +1,4 @@
-﻿using Ecommerce.Commons.Entities;
-using Ecommerce.Monolito.Core.Dtos;
+﻿using Ecommerce.Commons.Dtos;
 using Ecommerce.Monolito.Core.Interface;
 using Ecommerce.Commons.Util;
 using Microsoft.AspNetCore.Mvc;

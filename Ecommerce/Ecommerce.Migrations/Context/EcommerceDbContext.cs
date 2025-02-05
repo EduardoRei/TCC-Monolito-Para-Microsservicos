@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Ecommerce.DbMigrator.Context
+namespace Ecommerce.Monolito.DbMigrator.Context
 {
 
     public class EcommerceDbContext : DbContext

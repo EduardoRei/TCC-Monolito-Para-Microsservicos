@@ -1,6 +1,8 @@
 ﻿
-namespace Ecommerce.Commons.Entities {
-    public class Produto {
+namespace Ecommerce.Commons.Entities
+{
+    public class Produto
+    {
         public int Id { get; set; }
         public int IdCategoria { get; set; }
         public string Nome { get; set; }

@@ -1,7 +1,7 @@
-﻿using Ecommerce.Commons.Entities;
-using Ecommerce.Monolito.Core.Dtos;
+﻿using Ecommerce.Commons.Dtos;
+using Ecommerce.Commons.Entities;
 
-namespace Ecommerce.Monolito.Core.Extensions
+namespace Ecommerce.Commons.Extensions
 {
     public static class CategoriaExtensions
     {

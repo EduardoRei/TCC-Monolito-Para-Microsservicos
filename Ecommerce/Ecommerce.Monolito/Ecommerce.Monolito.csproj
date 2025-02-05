@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ecommerce.Commons\Ecommerce.Commons.csproj" />
-    <ProjectReference Include="..\Ecommerce.Migrations\Ecommerce.DbMigrator.csproj" />
+    <ProjectReference Include="..\Ecommerce.Migrations\Ecommerce.Monolito.DbMigrator.csproj" />
   </ItemGroup>
 
 </Project>

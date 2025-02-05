@@ -1,10 +1,9 @@
-﻿using Ecommerce.DbMigrator.Context;
-using Ecommerce.Commons.Entities;
+﻿using Ecommerce.Monolito.DbMigrator.Context;
 using Ecommerce.Monolito.Core.Base;
+using Ecommerce.Commons.Dtos;
+using Ecommerce.Commons.Extensions;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
-using Ecommerce.Monolito.Core.Dtos;
-using Ecommerce.Monolito.Core.Extensions;
 
 namespace Ecommerce.Monolito.Core.Service
 {

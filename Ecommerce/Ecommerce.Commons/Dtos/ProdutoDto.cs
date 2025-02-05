@@ -1,4 +1,4 @@
-﻿namespace Ecommerce.Monolito.Core.Dtos
+﻿namespace Ecommerce.Commons.Dtos
 {
     public class ProdutoDto
     {
