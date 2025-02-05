@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.DbMigrator", "Ecommerce.Migrations\Ecommerce.DbMigrator.csproj", "{5EA755DC-54B5-4496-8AE0-5DF9D496A5FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecommerce.Monolito.DbMigrator", "Ecommerce.Migrations\Ecommerce.Monolito.DbMigrator.csproj", "{5EA755DC-54B5-4496-8AE0-5DF9D496A5FD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Monolito", "Monolito", "{92A0FA36-3F8C-4EE6-80AB-E4FD84F8F6A6}"
 EndProject
@@ -19,6 +19,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Commons", "Commons", "{D5B7BC02-7B49-4245-844F-0F92AB4B09BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Commons", "Ecommerce.Commons\Ecommerce.Commons.csproj", "{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Categoria", "Categoria", "{D4FB5C9F-1841-4821-BE98-87E0C713B2C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Microsservico.Categoria", "Ecommerce.Microsservico.Categoria\Ecommerce.Microsservico.Categoria.csproj", "{388354BD-F012-4B3E-B092-A7A4F3B9715E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,13 +42,20 @@ Global
 		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250}.Release|Any CPU.Build.0 = Release|Any CPU
+		{388354BD-F012-4B3E-B092-A7A4F3B9715E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{388354BD-F012-4B3E-B092-A7A4F3B9715E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{388354BD-F012-4B3E-B092-A7A4F3B9715E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{388354BD-F012-4B3E-B092-A7A4F3B9715E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{5EA755DC-54B5-4496-8AE0-5DF9D496A5FD} = {92A0FA36-3F8C-4EE6-80AB-E4FD84F8F6A6}
 		{39EA781D-5ED6-4B9E-ADE8-83DA50096F71} = {92A0FA36-3F8C-4EE6-80AB-E4FD84F8F6A6}
 		{0D89C3FE-6FFC-4FFD-B450-8C35A5DE8250} = {D5B7BC02-7B49-4245-844F-0F92AB4B09BC}
+		{D4FB5C9F-1841-4821-BE98-87E0C713B2C0} = {D74224F4-C6BD-4B3A-8485-307CFFE7A895}
+		{388354BD-F012-4B3E-B092-A7A4F3B9715E} = {D4FB5C9F-1841-4821-BE98-87E0C713B2C0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7656CD5E-2775-4C56-A1AE-AC24286F333A}

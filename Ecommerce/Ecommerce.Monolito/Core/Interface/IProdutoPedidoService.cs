@@ -1,4 +1,4 @@
-﻿using Ecommerce.Monolito.Core.Dtos;
+﻿using Ecommerce.Commons.Dtos;
 
 namespace Ecommerce.Monolito.Core.Interface
 {

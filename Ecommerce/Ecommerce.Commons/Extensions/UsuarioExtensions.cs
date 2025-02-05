@@ -1,7 +1,7 @@
 ﻿using Ecommerce.Commons.Entities;
-using Ecommerce.Monolito.Core.Dtos;
+using Ecommerce.Commons.Dtos;
 
-namespace Ecommerce.Monolito.Core.Extensions
+namespace Ecommerce.Commons.Extensions
 {
     public static class UsuarioExtensions
     {
