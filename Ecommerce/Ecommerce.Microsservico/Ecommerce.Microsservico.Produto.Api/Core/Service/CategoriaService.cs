@@ -1,15 +1,15 @@
 ﻿using Ecommerce.Commons.Core.Base;
 using Ecommerce.Commons.Dtos;
 using Ecommerce.Commons.Extensions;
-using Ecommerce.Microsservico.Categoria.Api.Core.Interface;
-using Ecommerce.Microsservico.Categoria.DbMigrator.Context;
+using Ecommerce.Microsservico.Produto.Api.Core.Interface;
+using Ecommerce.Microsservico.Produto.DbMigrator.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Microsservico.Categoria.Api.Core.Service
 {
-    public class CategoriaService : ServiceBase<CategoriaDbContext>, ICategoriaService
+    public class CategoriaService : ServiceBase<ProdutoDbContext>, ICategoriaService
     {
-        public CategoriaService(CategoriaDbContext dbContext) : base(dbContext)
+        public CategoriaService(ProdutoDbContext dbContext) : base(dbContext)
         {
         }
 

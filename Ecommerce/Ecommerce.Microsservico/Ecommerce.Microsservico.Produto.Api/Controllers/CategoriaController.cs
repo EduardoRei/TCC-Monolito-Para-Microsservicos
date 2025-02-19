@@ -1,6 +1,6 @@
 ﻿using Ecommerce.Commons.Dtos;
 using Ecommerce.Commons.Util;
-using Ecommerce.Microsservico.Categoria.Api.Core.Interface;
+using Ecommerce.Microsservico.Produto.Api.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Microsservico.Categoria.Api.Controllers

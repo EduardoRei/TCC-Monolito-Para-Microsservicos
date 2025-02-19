@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ecommerce.Commons.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using ProdutoEntity = Ecommerce.Commons.Entities.Produto;
 
@@ -13,6 +14,9 @@ namespace Ecommerce.Microsservico.Produto.DbMigrator.Context
 
         public DbSet<ProdutoEntity> Produto{ get; set; }
 
+        public DbSet<Categoria> Categoria { get; set; }
+
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
@@ -25,6 +29,17 @@ namespace Ecommerce.Microsservico.Produto.DbMigrator.Context
                 .WithMany(c => c.Produto)
                 .HasForeignKey(p => p.IdCategoria)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Categoria>().HasData(
+            new Categoria { Id = 1, Nome = "Smartphones" },
+            new Categoria { Id = 2, Nome = "Tablets" },
+            new Categoria { Id = 3, Nome = "TVs" },
+            new Categoria { Id = 4, Nome = "Notebooks" },
+            new Categoria { Id = 5, Nome = "Projetores" },
+            new Categoria { Id = 6, Nome = "Periféricos" },
+            new Categoria { Id = 7, Nome = "Consolers" },
+            new Categoria { Id = 8, Nome = "Cameras" }
+            );
 
             modelBuilder.Entity<ProdutoEntity>().HasData(
                 new ProdutoEntity { Id = 1, IdCategoria = 1, Nome = "iPhone 16", Descricao = "Smartphone Apple com design avançado e desempenho aprimorado.", QuantidadeEstoque = 50, PrecoUnitario = 7999.99 },
@@ -76,7 +91,7 @@ namespace Ecommerce.Microsservico.Produto.DbMigrator.Context
                 new ProdutoEntity { Id = 47, IdCategoria = 8, Nome = "Panasonic Lumix GH6", Descricao = "Câmera híbrida para foto e vídeo.", QuantidadeEstoque = 15, PrecoUnitario = 13999.99 },
                 new ProdutoEntity { Id = 48, IdCategoria = 8, Nome = "DJI Osmo Pocket 3", Descricao = "Câmera compacta com estabilização gimbal.", QuantidadeEstoque = 40, PrecoUnitario = 3499.99 },
                 new ProdutoEntity { Id = 49, IdCategoria = 1, Nome = "Sony Xperia 1 V", Descricao = "Smartphone com tela OLED 4K e câmera profissional.", QuantidadeEstoque = 15, PrecoUnitario = 5999.99 },
-                new ProdutoEntity { Id = 50, IdCategoria = 1, Nome = "Asus ROG Phone 7", Descricao = "Smartphone gamer com desempenho de alto nível.", QuantidadeEstoque = 20, PrecoUnitario = 6299.99 }
+                new ProdutoEntity { Id = 50, IdCategoria = 1, Nome = "Asus ROG Phone 7", Descricao = "Smartphone gamer com desempenho de alto nível.", QuantidadeEstoque = 20, PrecoUnitario = 6299.99 });
         }
     }
 }

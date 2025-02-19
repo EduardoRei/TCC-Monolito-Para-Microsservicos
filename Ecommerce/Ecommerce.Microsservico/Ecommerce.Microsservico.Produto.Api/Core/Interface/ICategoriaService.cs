@@ -1,6 +1,6 @@
 ﻿using Ecommerce.Commons.Dtos;
 
-namespace Ecommerce.Microsservico.Categoria.Api.Core.Interface
+namespace Ecommerce.Microsservico.Produto.Api.Core.Interface
 {
     public interface ICategoriaService
     {

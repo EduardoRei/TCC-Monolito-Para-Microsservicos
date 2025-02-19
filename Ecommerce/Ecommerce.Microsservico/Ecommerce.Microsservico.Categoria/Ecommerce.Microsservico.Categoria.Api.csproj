@@ -12,7 +12,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Ecommerce.Commons\Ecommerce.Commons.csproj" />
-    <ProjectReference Include="..\Ecommerce.Microsservico.Categoria.DbMigrator\Ecommerce.Microsservico.Categoria.DbMigrator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+    <Folder Include="Core\Interface\" />
+    <Folder Include="Core\Service\" />
   </ItemGroup>
 
 </Project>
