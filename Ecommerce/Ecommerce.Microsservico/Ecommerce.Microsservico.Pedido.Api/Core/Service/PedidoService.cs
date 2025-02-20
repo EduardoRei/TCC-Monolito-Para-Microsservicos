@@ -16,8 +16,6 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
         public async Task<PedidoDto?> GetByIdAsync(int id)
         {
             return await DbContext.Pedido
-                .Include(p => p.Pagamento)
-                .Include(p => p.Usuario)
                 .Include(p => p.ProdutoPedido)
                 .Select(p => p.ToDto())
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -25,8 +23,6 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
 
         public async Task<IEnumerable<PedidoDto>> GetAllAsync()
             => await DbContext.Pedido
-                .Include(p => p.Pagamento)
-                .Include(p => p.Usuario)
                 .Include(p => p.ProdutoPedido)
                 .Select(p => p.ToDto())
                 .ToListAsync();

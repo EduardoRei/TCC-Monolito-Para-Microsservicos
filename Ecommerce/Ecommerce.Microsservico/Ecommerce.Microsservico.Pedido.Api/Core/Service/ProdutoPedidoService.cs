@@ -36,7 +36,6 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
         public async Task<ProdutoPedidoDto?> GetByIdAsync(int idPedido, int idProduto)
             => await DbContext.ProdutoPedido
                 .Include(pc => pc.Pedido)
-                .Include(pc => pc.Produto)
                 .Select(pc => pc.ToDto())
                 .FirstOrDefaultAsync(pc => pc.IdPedido == idPedido && pc.IdProduto == idProduto);
 

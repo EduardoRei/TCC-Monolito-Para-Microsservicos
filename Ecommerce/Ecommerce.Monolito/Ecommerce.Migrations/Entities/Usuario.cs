@@ -1,4 +1,4 @@
-﻿namespace Ecommerce.Commons.Entities
+﻿namespace Ecommerce.Monolito.DbMigrator.Entities
 {
     public class Usuario
     {
@@ -11,5 +11,8 @@
         public DateTime DataNascimento { get; set; }
         public DateTime DataCriacaoUsuario { get; set; }
 
+
+        // Relacionamentos
+        public ICollection<Pedido> Pedido { get; set; }
     }
 }

@@ -29,4 +29,5 @@ RUN dotnet publish "./Ecommerce.Monolito.csproj" -c $BUILD_CONFIGURATION -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN dotnet ef database update --project /src/Ecommerce.Monolito/Ecommerce.Migrations
 ENTRYPOINT ["dotnet", "Ecommerce.Monolito.dll"]

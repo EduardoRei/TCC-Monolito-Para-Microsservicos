@@ -21,10 +21,6 @@ namespace Ecommerce.Microsservico.Usuario.DbMigrator.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UsuarioEntity>()
-                .HasMany(pc => pc.Pedido)
-                .WithOne(c => c.Usuario)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

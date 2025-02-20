@@ -1,6 +1,6 @@
 ﻿using Ecommerce.Commons.Enums;
 
-namespace Ecommerce.Commons.Entities
+namespace Ecommerce.Monolito.DbMigrator.Entities
 {
     public class Pedido
     {
@@ -10,6 +10,9 @@ namespace Ecommerce.Commons.Entities
         public StatusPedidoEnum StatusPedido { get; set; }
         public long PrecoTotal { get; set; }
 
+        // Relacionamentos
+        public Usuario Usuario { get; set; }
+        public Pagamento Pagamento { get; set; }
         public ICollection<ProdutoPedido> ProdutoPedido { get; set; }
     }
 }

@@ -20,11 +20,6 @@ namespace Ecommerce.Microsservico.Pagamento.DbMigrator.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PagamentoEntity>()
-                .HasOne(p => p.Pedido)
-                .WithOne(u => u.Pagamento)
-                .HasForeignKey<PagamentoEntity>(p => p.IdPedido)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

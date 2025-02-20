@@ -15,13 +15,11 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Core.Service
 
         public async Task<PagamentoDto?> GetByIdAsync(int id)
             => await DbContext.Pagamento
-                .Include(p => p.Pedido)
                 .Select(p => p.ToDto())
                 .FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task<IEnumerable<PagamentoDto>> GetAllAsync()
             => await DbContext.Pagamento
-                .Include(p => p.Pedido)
                 .Select(p => p.ToDto())
                 .ToListAsync();
 

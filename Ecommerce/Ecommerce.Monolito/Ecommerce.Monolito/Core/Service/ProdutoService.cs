@@ -1,7 +1,7 @@
 ﻿using Ecommerce.Monolito.DbMigrator.Context;
 using Ecommerce.Commons.Core.Base;
 using Ecommerce.Commons.Dtos;
-using Ecommerce.Commons.Extensions;
+using Ecommerce.Monolito.DbMigrator.Extensions;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
 

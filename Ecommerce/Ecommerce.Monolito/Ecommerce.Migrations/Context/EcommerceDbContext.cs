@@ -1,4 +1,4 @@
-﻿using Ecommerce.Commons.Entities;
+﻿using Ecommerce.Monolito.DbMigrator.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
