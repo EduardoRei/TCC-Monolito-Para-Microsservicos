@@ -9,8 +9,5 @@ namespace Ecommerce.Commons.Entities
         public StatusPagamentoEnum StatusPagamento { get; set; }
         public FormaPagamentoEnum FormaPagamento { get; set; }
         public DateTime? DataPagamento { get; set; }
-
-        // Relacionamentos
-        public Pedido Pedido { get; set; }
     }
 }

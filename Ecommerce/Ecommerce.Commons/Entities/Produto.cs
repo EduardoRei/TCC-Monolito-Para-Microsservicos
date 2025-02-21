@@ -10,9 +10,6 @@ namespace Ecommerce.Commons.Entities
         public int QuantidadeEstoque { get; set; }
         public double PrecoUnitario { get; set; }
 
-        // Relacionamentos
         public Categoria Categoria { get; set; }
-        public ICollection<ProdutoPedido> ProdutoPedido { get; set; }
-
     }
 }

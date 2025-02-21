@@ -11,8 +11,5 @@
         public DateTime DataNascimento { get; set; }
         public DateTime DataCriacaoUsuario { get; set; }
 
-
-        // Relacionamentos
-        public ICollection<Pedido> Pedido { get; set; }
     }
 }
