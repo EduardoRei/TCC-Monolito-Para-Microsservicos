@@ -29,4 +29,5 @@ RUN dotnet publish "./Ecommerce.Microsservico.Usuario.Api.csproj" -c $BUILD_CONF
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN dotnet ef database update --project /src/Ecommerce.Microsservico/Ecommerce.Microsservico.Usuario.Api
 ENTRYPOINT ["dotnet", "Ecommerce.Microsservico.Usuario.Api.dll"]
