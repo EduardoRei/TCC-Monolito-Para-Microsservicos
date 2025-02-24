@@ -25,9 +25,13 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Ecommerce.Monolito.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS migrations
+WORKDIR /app
+COPY --from=publish /app/publish .
+RUN dotnet ef database update --project Ecommerce.Microsservico.Pedido.Api.dll --startup-project Ecommerce.Microsservico.Pedido.Api.dll
+
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-RUN dotnet ef database update --project /src/Ecommerce.Monolito/Ecommerce.Monolito
 ENTRYPOINT ["dotnet", "Ecommerce.Monolito.dll"]

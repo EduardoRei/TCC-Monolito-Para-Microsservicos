@@ -4,9 +4,17 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpClient("UsuarioService", client =>
+{
+    client.BaseAddress = new Uri("http://usuario/");
+});
+
+builder.Services.AddHttpClient("ProdutoService", client =>
+{
+    client.BaseAddress = new Uri("http://produto/");
+});
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

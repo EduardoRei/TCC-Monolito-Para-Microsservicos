@@ -1,7 +1,7 @@
 ﻿using Ecommerce.Commons.Dtos;
-using Ecommerce.Commons.Enums;
+using Ecommerce.Commons.Entities;
+using Ecommerce.Microsservico.Pedido.Api.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System.Transactions;
 
 namespace Ecommerce.Microsservico.Pedido.Api.Controllers
 {
@@ -9,36 +9,34 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
     [Route("api/[controller]")]
     public class PedidoController : ControllerBase
     {
-        /*
+        
         private readonly IPedidoService _service;
-        private readonly IUsuarioService _usuarioService;
-        private readonly IProdutoService _produtoService;
         private readonly IProdutoPedidoService _produtoPedidoService;
-        private readonly IPagamentoService _pagamentoService;
+        private readonly IHttpService _httpService;
 
         public PedidoController(
                 IPedidoService service,
-                IUsuarioService usuarioService,
-                IPagamentoService pagamentoService,
-                IProdutoService produtoService,
+                IHttpService httpService,
                 IProdutoPedidoService produtoPedidoService)
         {
             _service = service;
-            _usuarioService = usuarioService;
-            _produtoService = produtoService;
             _produtoPedidoService = produtoPedidoService;
-            _pagamentoService = pagamentoService;
+            _httpService = httpService;
         }
 
+            /*
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var pedido = await _service.GetByIdAsync(id);
+
             if (pedido == null)
                 return NotFound();
 
             return Ok(pedido);
+
         }
+            */
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -47,10 +45,31 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
             return Ok(pedidos);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProduto(int id)
+        {
+            // Exemplo de chamada ao endpoint "getUsuario" do microsserviço "usuario"
+            var produto = await _httpService.GetAsync<Produto>("ProdutoService", $"/api/produtos/{id}");
+
+            // Lógica para processar o pedido com as informações do usuário...
+            return Ok(new { Pedido = "PedidoInfo", Produto = produto });
+        }
+
+        /*
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPedidoComUsuario(int id)
+        {
+            // Exemplo de chamada ao endpoint "getUsuario" do microsserviço "usuario"
+            var usuario = await _httpService.GetAsync<Usuario>($"/api/usuarios/{id}");
+
+            // Lógica para processar o pedido com as informações do usuário...
+            return Ok(new { Pedido = "PedidoInfo", Usuario = usuario });
+        }
+
         [HttpPost]
         public async Task<IActionResult> Add(PedidoDto pedidoDto, FormaPagamentoEnum formaPagamento)
         {
-            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))  
             {
                 try
                 {
@@ -106,6 +125,7 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
                 }
             }
         }
+        */
 
         [HttpPut]
         public async Task<IActionResult> Update(PedidoDto pedido)
@@ -120,6 +140,7 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
             await _service.DeleteAsync(id);
             return NoContent();
         }
-        */
+
+        
     }
 }
