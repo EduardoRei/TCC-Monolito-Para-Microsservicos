@@ -1,3 +1,5 @@
+using Ecommerce.Microservico.Usuario.Api.Core.Interface;
+using Ecommerce.Microservico.Usuario.Api.Core.Service;
 using Ecommerce.Microsservico.Usuario.DbMigrator.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,8 +15,29 @@ builder.Services.AddDbContext<UsuarioDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<UsuarioDbContext>();
+
+    var retryCount = 5;
+    while (retryCount > 0)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch (Exception ex)
+        {
+            retryCount--;
+            Console.WriteLine($"Erro ao conectar ao banco: {ex.Message}. Tentando novamente...");
+            Thread.Sleep(5000);
+        }
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
