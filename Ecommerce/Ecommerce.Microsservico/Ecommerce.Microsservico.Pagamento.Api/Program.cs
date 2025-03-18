@@ -1,3 +1,5 @@
+using Ecommerce.Microsservico.Pagamento.Api.Core.Interface;
+using Ecommerce.Microsservico.Pagamento.Api.Core.Service;
 using Ecommerce.Microsservico.Pagamento.DbMigrator.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,8 +14,29 @@ builder.Services.AddDbContext<PagamentoDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PagamentoDbContext>();
+
+    var retryCount = 5;
+    while (retryCount > 0)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch (Exception ex)
+        {
+            retryCount--;
+            Console.WriteLine($"Erro ao conectar ao banco: {ex.Message}. Tentando novamente...");
+            Thread.Sleep(5000);
+        }
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

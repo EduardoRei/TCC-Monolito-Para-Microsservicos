@@ -16,8 +16,10 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task AddProdutoAsync(ProdutoDto produto)
         {
-            await DbContext.Produto.AddAsync(produto.ToEntity());
+            var entity = produto.ToEntity();
+            await DbContext.Produto.AddAsync(entity);
             await DbContext.SaveChangesAsync();
+            produto.Id = entity.Id;
         }
 
         public async Task DeleteProdutoByIdAsync(int id)
@@ -44,7 +46,7 @@ namespace Ecommerce.Monolito.Core.Service
             await DbContext.Produto.Where(x => listaIds.Contains(x.Id)).Select(p => p.ToDto()).ToListAsync();
         
         public async Task<ProdutoDto?> GetProdutoByIdAsync(int? id) =>
-            await DbContext.Produto.Select(p => p.ToDto()).FirstOrDefaultAsync(x => x.Id == id);
+            await DbContext.Produto.Where(x => x.Id == id).Select(p => p.ToDto()).FirstOrDefaultAsync();
 
         public async Task<int> GetQuantidadeProdutoByIdAsync(int? id)
         {

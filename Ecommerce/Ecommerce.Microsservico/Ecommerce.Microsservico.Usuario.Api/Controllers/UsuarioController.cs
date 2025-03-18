@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Ecommerce.Microservico.Usuario.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsuarioController : ControllerBase
 
     {

@@ -11,8 +11,6 @@ services:
       - "1433:1433"
     networks:
       - ecommerce-network
-    volumes:
-      - sqlserver-data:/var/opt/mssql
 
   produto-api:
     build:

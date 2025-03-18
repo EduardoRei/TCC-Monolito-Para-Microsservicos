@@ -1,6 +1,9 @@
 ﻿using Ecommerce.Commons.Dtos;
 using Ecommerce.Commons.Enums;
+using Ecommerce.Microsservico.Pedido.Api.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Text.Json;
 using System.Transactions;
 
 namespace Ecommerce.Microsservico.Pedido.Api.Controllers
@@ -9,35 +12,28 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
     [Route("api/[controller]")]
     public class PedidoController : ControllerBase
     {
-        /*
+
         private readonly IPedidoService _service;
-        private readonly IUsuarioService _usuarioService;
-        private readonly IProdutoService _produtoService;
         private readonly IProdutoPedidoService _produtoPedidoService;
-        private readonly IPagamentoService _pagamentoService;
 
         public PedidoController(
                 IPedidoService service,
-                IUsuarioService usuarioService,
-                IPagamentoService pagamentoService,
-                IProdutoService produtoService,
                 IProdutoPedidoService produtoPedidoService)
         {
             _service = service;
-            _usuarioService = usuarioService;
-            _produtoService = produtoService;
             _produtoPedidoService = produtoPedidoService;
-            _pagamentoService = pagamentoService;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var pedido = await _service.GetByIdAsync(id);
+
             if (pedido == null)
                 return NotFound();
 
             return Ok(pedido);
+
         }
 
         [HttpGet]
@@ -47,65 +43,92 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
             return Ok(pedidos);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Add(PedidoDto pedidoDto, FormaPagamentoEnum formaPagamento)
+        /*
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProduto(int id)
         {
-            using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            Produto produto = null;
+            using (var httpClient = new HttpClient())
             {
-                try
+                var response = await httpClient.GetAsync($"http://produto-api:8080/api/Produto/{id}");
+                if (response.IsSuccessStatusCode)
                 {
-                    var usuario = await _usuarioService.GetUsuarioByIdAsync(pedidoDto.IdUsuario);
-                    long precoTotal = 0;
+                    produto = await response.Content.ReadFromJsonAsync<Produto>();
+                    var ex = StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                }
+            }
+            return Ok(new { Pedido = "PedidoInfo", Produto = produto });
+        }
+        */
 
-                    if (usuario == null)
-                        return BadRequest("Usuário não encontrado");
+        [HttpPost]
+        public async Task<IActionResult> Add(CreatePedidoDto createPedidoDto, FormaPagamentoEnum formaPagamento)
+        {
+            try
+            {
+                bool usuarioExists = await UsuarioExistsAsync(createPedidoDto.IdUsuario);
+                if (!usuarioExists)
+                    return BadRequest("Usuário não encontrado");
 
-                    if (!pedidoDto.ProdutoPedido.Any())
-                        return BadRequest("Pedido sem produtos");
+                if (!createPedidoDto.CreateProdutoPedido.Any())
+                    return BadRequest("Pedido sem produtos");
 
-                    if (!pedidoDto.ProdutoPedido.Any(x => x.Quantidade_Produto == 0))
-                        return BadRequest("Não é possivel adicionar um produto sem informar a quantidade");
+                if (createPedidoDto.CreateProdutoPedido.Any(x => x.QuantidadeProduto == 0))
+                    return BadRequest("Não é possivel adicionar um produto sem informar a quantidade");
 
-                    var produtos = await _produtoService.GetListaProdutosByIdListAsync(pedidoDto.ProdutoPedido.Select(x => x.IdProduto).ToList());
+                var produtos = await GetListaProdutosAsync(createPedidoDto.CreateProdutoPedido.Select(x => x.IdProduto).ToList());
 
-                    foreach (var produto in produtos)
-                    {
-                        var produtoPedido = pedidoDto.ProdutoPedido.FirstOrDefault(x => x.IdProduto == produto.Id);
-                        if (produto.QuantidadeEstoque < produtoPedido?.Quantidade_Produto)
-                            return BadRequest($"A Quantidade solicitada de produto {produto.Nome} é maior do que a quantidade disponivel no estoque.");
+                if (!produtos.Any())
+                    return BadRequest("Nenhum produto foi encontrado.");
 
-                        precoTotal += (long)(produto.PrecoUnitario ?? 0 * (produtoPedido?.Quantidade_Produto ?? 0));
-                    }
+                var listaProdutoPedidoDto = createPedidoDto.CreateProdutoPedido
+                .GroupBy(p => p.IdProduto)
+                .Select(group => new ProdutoPedidoDto()
+                {
+                    IdProduto = group.Key,
+                    QuantidadeProduto = group.Sum(p => p.QuantidadeProduto) 
+                })
+                .ToList();
 
-                    pedidoDto.StatusPedido = StatusPedidoEnum.SeparandoPedido;
-                    pedidoDto.PrecoTotal = precoTotal;
+                if (produtos.Count != listaProdutoPedidoDto.Count)
+                    return BadRequest("Nem todos os produtos foram encontrados.");
 
+                double precoTotal = 0;
+                foreach (var produto in produtos)
+                {
+                    var produtoPedido = createPedidoDto.CreateProdutoPedido.FirstOrDefault(x => x.IdProduto == produto.Id);
+                    if (produto.QuantidadeEstoque < produtoPedido?.QuantidadeProduto)
+                        return BadRequest($"A Quantidade solicitada de produto {produto.Nome} é maior do que a quantidade disponivel no estoque.");
+
+                    precoTotal += produto.PrecoUnitario ?? 0 * (produtoPedido?.QuantidadeProduto ?? 0);
+                }
+
+                var pedidoDto = new PedidoDto()
+                {
+                    IdUsuario = createPedidoDto.IdUsuario,
+                    ProdutoPedido = listaProdutoPedidoDto,
+                    PrecoTotal = precoTotal,
+                    StatusPedido = StatusPedidoEnum.SeparandoPedido
+                };
+
+                using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
                     await _service.AddAsync(pedidoDto);
 
-                    foreach (var pedidoProdutoDto in pedidoDto.ProdutoPedido)
-                    {
-                        await _produtoPedidoService.AddAsync(pedidoProdutoDto);
-                    }
-
-                    if (await _pagamentoService.PagamentoExistsByIdPedido(pedidoDto.Id))
-                        return BadRequest("Pagamento já cadastrado para este pedido");
-
-                    await _pagamentoService.AddAsync(new PagamentoDto
-                    {
-                        IdPedido = pedidoDto.Id,
-                        FormaPagamento = formaPagamento,
-                        StatusPagamento = StatusPagamentoEnum.AguardandoPagamento
-                    });
+                    // Disparar mensagem para o microsserviço de pagamento para criar um pagamento com as informações nescessarias para esse pedio
+                    // Disparar mensagem para o microsserviço de estoque para atualizar a quantidade de produtos no estoque
 
                     transaction.Complete();
                     return CreatedAtAction(nameof(Get), new { id = pedidoDto.Id }, pedidoDto);
                 }
-                catch (Exception)
-                {
-                    return StatusCode(500, "Ocorreu um erro ao processar o pedido");
-                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Ocorreu um erro ao processar o pedido: " + e.StackTrace);
             }
         }
+
 
         [HttpPut]
         public async Task<IActionResult> Update(PedidoDto pedido)
@@ -120,6 +143,36 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
             await _service.DeleteAsync(id);
             return NoContent();
         }
-        */
+
+        private async Task<bool> UsuarioExistsAsync(int id)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                var response = await httpClient.GetAsync($"http://usuario-api:8080/api/Usuario/{id}");
+                return response.IsSuccessStatusCode;
+            }
+        }
+
+        private async Task<List<ProdutoDto>> GetListaProdutosAsync(List<int> listaIds)
+        {
+            List<ProdutoDto> produtos = new List<ProdutoDto>();
+            using (var httpClient = new HttpClient())
+            {
+                var jsonContent = new StringContent(JsonSerializer.Serialize(listaIds), Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync("http://produto-api:8080/api/Produto/getListProdutosByListIds", jsonContent);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var produtosRetornados = await response.Content.ReadFromJsonAsync<List<ProdutoDto>>();
+
+                    if (produtosRetornados != null)
+                    {
+                        produtos.AddRange(produtosRetornados);
+                    }
+                }
+            }
+            return produtos;
+        }
     }
 }

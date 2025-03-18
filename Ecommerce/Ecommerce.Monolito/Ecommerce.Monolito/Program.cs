@@ -25,6 +25,27 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<EcommerceDbContext>();
+
+    var retryCount = 5;
+    while (retryCount > 0)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch (Exception ex)
+        {
+            retryCount--;
+            Console.WriteLine($"Erro ao conectar ao banco: {ex.Message}. Tentando novamente...");
+            Thread.Sleep(5000);
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

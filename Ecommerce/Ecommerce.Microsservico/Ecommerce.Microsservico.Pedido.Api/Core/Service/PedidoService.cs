@@ -17,8 +17,9 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
         {
             return await DbContext.Pedido
                 .Include(p => p.ProdutoPedido)
+                .Where(p => p.Id == id)
                 .Select(p => p.ToDto())
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<PedidoDto>> GetAllAsync()
@@ -29,8 +30,10 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
 
         public async Task AddAsync(PedidoDto pedido)
         {
-            DbContext.Pedido.Add(pedido.ToEntity());
+            var entity = pedido.ToEntity();
+            DbContext.Pedido.Add(entity);
             await DbContext.SaveChangesAsync();
+            pedido.Id = entity.Id;
         }
 
         public async Task UpdateAsync(PedidoDto pedido)
@@ -46,7 +49,6 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
             {
                 var pedido = pedidoDto.ToEntity();
                 DbContext.Pedido.Remove(pedido);
-                await DbContext.SaveChangesAsync();
             }
         }
     }
