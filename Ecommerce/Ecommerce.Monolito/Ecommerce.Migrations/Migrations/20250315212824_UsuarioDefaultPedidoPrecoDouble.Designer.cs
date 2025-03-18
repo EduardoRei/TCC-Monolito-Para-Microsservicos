@@ -4,6 +4,7 @@ using Ecommerce.Monolito.DbMigrator.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ecommerce.Monolito.DbMigrator.Migrations
 {
     [DbContext(typeof(EcommerceDbContext))]
-    partial class EcommerceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250315212824_UsuarioDefaultPedidoPrecoDouble")]
+    partial class UsuarioDefaultPedidoPrecoDouble
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,7 +120,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("IdPagamento")
+                    b.Property<int>("IdPagamento")
                         .HasColumnType("int");
 
                     b.Property<int>("IdUsuario")
@@ -684,7 +687,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 1,
                             CPF = "12345678901",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 626, DateTimeKind.Local).AddTicks(6284),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 37, DateTimeKind.Local).AddTicks(2044),
                             DataNascimento = new DateTime(1990, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "joao.silva@example.com",
                             Endereco = "Rua A, 123",
@@ -695,7 +698,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 2,
                             CPF = "23456789012",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(456),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4791),
                             DataNascimento = new DateTime(1992, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "maria.souza@example.com",
                             Endereco = "Rua B, 456",
@@ -706,7 +709,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 3,
                             CPF = "34567890123",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(465),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4799),
                             DataNascimento = new DateTime(1985, 3, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "carlos.pereira@example.com",
                             Endereco = "Rua C, 789",
@@ -717,7 +720,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 4,
                             CPF = "45678901234",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(467),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4801),
                             DataNascimento = new DateTime(1988, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "ana.costa@example.com",
                             Endereco = "Rua D, 101",
@@ -728,7 +731,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 5,
                             CPF = "56789012345",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(468),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4802),
                             DataNascimento = new DateTime(1995, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "pedro.almeida@example.com",
                             Endereco = "Rua E, 202",
@@ -739,7 +742,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 6,
                             CPF = "67890123456",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(470),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4804),
                             DataNascimento = new DateTime(1993, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "juliana.santos@example.com",
                             Endereco = "Rua F, 303",
@@ -750,7 +753,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 7,
                             CPF = "78901234567",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(495),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4827),
                             DataNascimento = new DateTime(1987, 7, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "rafael.oliveira@example.com",
                             Endereco = "Rua G, 404",
@@ -761,7 +764,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 8,
                             CPF = "89012345678",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(497),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4828),
                             DataNascimento = new DateTime(1991, 8, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "fernanda.lima@example.com",
                             Endereco = "Rua H, 505",
@@ -772,7 +775,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 9,
                             CPF = "90123456789",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(498),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4830),
                             DataNascimento = new DateTime(1994, 9, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "lucas.rocha@example.com",
                             Endereco = "Rua I, 606",
@@ -783,7 +786,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 10,
                             CPF = "01234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(499),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4831),
                             DataNascimento = new DateTime(1989, 10, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "mariana.ribeiro@example.com",
                             Endereco = "Rua J, 707",
@@ -794,7 +797,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 11,
                             CPF = "11234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(501),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4832),
                             DataNascimento = new DateTime(1996, 11, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "bruno.fernandes@example.com",
                             Endereco = "Rua K, 808",
@@ -805,7 +808,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 12,
                             CPF = "12234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(502),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4834),
                             DataNascimento = new DateTime(1997, 12, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "patricia.gomes@example.com",
                             Endereco = "Rua L, 909",
@@ -816,7 +819,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 13,
                             CPF = "13234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(504),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4835),
                             DataNascimento = new DateTime(1986, 1, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "rodrigo.martins@example.com",
                             Endereco = "Rua M, 1010",
@@ -827,7 +830,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 14,
                             CPF = "14234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(505),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4836),
                             DataNascimento = new DateTime(1998, 2, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "aline.ferreira@example.com",
                             Endereco = "Rua N, 1111",
@@ -838,7 +841,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 15,
                             CPF = "15234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(506),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4838),
                             DataNascimento = new DateTime(1990, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "thiago.barbosa@example.com",
                             Endereco = "Rua O, 1212",
@@ -849,7 +852,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 16,
                             CPF = "16234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(508),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4839),
                             DataNascimento = new DateTime(1992, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "camila.araujo@example.com",
                             Endereco = "Rua P, 1313",
@@ -860,7 +863,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 17,
                             CPF = "17234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(509),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4841),
                             DataNascimento = new DateTime(1985, 5, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "felipe.mendes@example.com",
                             Endereco = "Rua Q, 1414",
@@ -871,7 +874,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 18,
                             CPF = "18234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(511),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4842),
                             DataNascimento = new DateTime(1988, 6, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "renata.carvalho@example.com",
                             Endereco = "Rua R, 1515",
@@ -882,7 +885,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 19,
                             CPF = "19234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(512),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4843),
                             DataNascimento = new DateTime(1995, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "gustavo.lima@example.com",
                             Endereco = "Rua S, 1616",
@@ -893,7 +896,7 @@ namespace Ecommerce.Monolito.DbMigrator.Migrations
                         {
                             Id = 20,
                             CPF = "20234567890",
-                            DataCriacaoUsuario = new DateTime(2025, 3, 16, 17, 32, 7, 628, DateTimeKind.Local).AddTicks(514),
+                            DataCriacaoUsuario = new DateTime(2025, 3, 15, 18, 28, 24, 38, DateTimeKind.Local).AddTicks(4845),
                             DataNascimento = new DateTime(1993, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "isabela.souza@example.com",
                             Endereco = "Rua T, 1717",

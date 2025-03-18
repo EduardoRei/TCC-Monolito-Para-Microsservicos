@@ -3,6 +3,7 @@ using Ecommerce.Microsservico.Pedido.DbMigrator.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ecommerce.Microsservico.Pedido.DbMigrator.Migrations
 {
     [DbContext(typeof(PedidoDbContext))]
-    partial class PedidoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250315213923_PedidoPrecoTotalFixToBeFloat")]
+    partial class PedidoPrecoTotalFixToBeFloat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,7 +32,7 @@ namespace Ecommerce.Microsservico.Pedido.DbMigrator.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("IdPagamento")
+                    b.Property<int>("IdPagamento")
                         .HasColumnType("int");
 
                     b.Property<int>("IdUsuario")
@@ -54,6 +57,9 @@ namespace Ecommerce.Microsservico.Pedido.DbMigrator.Migrations
                     b.Property<int>("IdPedido")
                         .HasColumnType("int");
 
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantidade_Produto")
                         .HasColumnType("int");
 
@@ -69,7 +75,7 @@ namespace Ecommerce.Microsservico.Pedido.DbMigrator.Migrations
                     b.HasOne("Ecommerce.Commons.Entities.Pedido", "Pedido")
                         .WithMany("ProdutoPedido")
                         .HasForeignKey("IdPedido")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Pedido");

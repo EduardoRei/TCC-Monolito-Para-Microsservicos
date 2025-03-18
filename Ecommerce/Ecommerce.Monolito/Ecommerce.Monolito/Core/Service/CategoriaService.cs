@@ -15,8 +15,10 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task AddCategoriaAsync(CategoriaDto categoria)
         {
-            await DbContext.Categoria.AddAsync(categoria.ToEntity());
+            var entity = categoria.ToEntity();
+            await DbContext.Categoria.AddAsync(entity);
             await DbContext.SaveChangesAsync();
+            categoria.Id = entity.Id;
         }
 
         public async Task DeleteCategoriaByIdAsync(int id)

@@ -39,6 +39,24 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
             return Ok(produtos);
         }
 
+        [HttpPost("getListProdutosByListIds", Name = "GetListProdutoByIds")]
+        public async Task<ActionResult<IEnumerable<ProdutoDto>>> GetListProdutosByListIds([FromBody] List<int> listaIds)
+        {
+            if (listaIds == null || !listaIds.Any())
+            {
+                return BadRequest("A lista de IDs não pode ser vazia.");
+            }
+
+            var produtos = await _produtoService.GetListaProdutosByIdListAsync(listaIds);
+
+            if (produtos == null || !produtos.Any())
+            {
+                return NotFound("Nenhum produto encontrado para os IDs fornecidos.");
+            }
+
+            return Ok(produtos);
+        }
+
         [HttpGet("quantidade/{id}", Name = "GetQuantidadeProduto")]
         public async Task<ActionResult<int>> GetQuantidadeProduto(int id)
         {

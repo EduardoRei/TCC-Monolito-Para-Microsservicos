@@ -9,20 +9,18 @@ namespace Ecommerce.Monolito.DbMigrator.Extensions
             => new ProdutoPedidoDto
             {
                 
-                Id = produtoPedido.Id,
                 IdPedido = produtoPedido.IdPedido,
                 IdProduto = produtoPedido.IdProduto,
-                Quantidade_Produto = produtoPedido.Quantidade_Produto
+                QuantidadeProduto = produtoPedido.Quantidade_Produto
             };
 
         public static ProdutoPedido ToEntity(this ProdutoPedidoDto produtoPedido)
             => new ProdutoPedido
             {
 
-                Id = produtoPedido.Id,
                 IdPedido = produtoPedido.IdPedido,
                 IdProduto = produtoPedido.IdProduto,
-                Quantidade_Produto = produtoPedido.Quantidade_Produto
+                Quantidade_Produto = produtoPedido.QuantidadeProduto
             };
     }
 }

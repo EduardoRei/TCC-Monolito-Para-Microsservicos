@@ -16,8 +16,9 @@ namespace Ecommerce.Monolito.Core.Service
         public async Task<PagamentoDto?> GetByIdAsync(int id)
             => await DbContext.Pagamento
                 .Include(p => p.Pedido)
+                .Where(p => p.Id == id)
                 .Select(p => p.ToDto())
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync();
 
         public async Task<IEnumerable<PagamentoDto>> GetAllAsync()
             => await DbContext.Pagamento
@@ -27,8 +28,10 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task AddAsync(PagamentoDto pagamento)
         {
-            DbContext.Pagamento.Add(pagamento.ToEntity());
+            var entity = pagamento.ToEntity();
+            DbContext.Pagamento.Add(entity);
             await DbContext.SaveChangesAsync();
+            pagamento.Id = entity.Id;
         }
 
         public async Task UpdateAsync(PagamentoDto pagamento)

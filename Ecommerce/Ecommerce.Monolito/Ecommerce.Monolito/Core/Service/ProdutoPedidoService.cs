@@ -15,7 +15,8 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task AddAsync(ProdutoPedidoDto produtoPedido)
         {
-            DbContext.ProdutoPedido.Add(produtoPedido.ToEntity());
+            var entity = produtoPedido.ToEntity();
+            DbContext.ProdutoPedido.Add(entity);
             await DbContext.SaveChangesAsync();
         }
 
@@ -37,8 +38,9 @@ namespace Ecommerce.Monolito.Core.Service
             => await DbContext.ProdutoPedido
                 .Include(pc => pc.Pedido)
                 .Include(pc => pc.Produto)
+                .Where(pc => pc.IdPedido == idPedido && pc.IdProduto == idProduto)
                 .Select(pc => pc.ToDto())
-                .FirstOrDefaultAsync(pc => pc.IdPedido == idPedido && pc.IdProduto == idProduto);
+                .FirstOrDefaultAsync();
 
         public async Task UpdateAsync(ProdutoPedidoDto produtoPedido)
         {

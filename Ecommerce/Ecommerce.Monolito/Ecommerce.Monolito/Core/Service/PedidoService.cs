@@ -19,8 +19,9 @@ namespace Ecommerce.Monolito.Core.Service
                 .Include(p => p.Pagamento)
                 .Include(p => p.Usuario)
                 .Include(p => p.ProdutoPedido)
+                .Where(p => p.Id == id)
                 .Select(p => p.ToDto())
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<PedidoDto>> GetAllAsync()
@@ -33,8 +34,10 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task AddAsync(PedidoDto pedido)
         {
-            DbContext.Pedido.Add(pedido.ToEntity());
+            var entity = pedido.ToEntity();
+            DbContext.Pedido.Add(entity);
             await DbContext.SaveChangesAsync();
+            pedido.Id = entity.Id;
         }
 
         public async Task UpdateAsync(PedidoDto pedido)

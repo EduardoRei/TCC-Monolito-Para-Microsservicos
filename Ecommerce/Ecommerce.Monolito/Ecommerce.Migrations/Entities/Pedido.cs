@@ -6,9 +6,9 @@ namespace Ecommerce.Monolito.DbMigrator.Entities
     {
         public int Id { get; set; }
         public int IdUsuario { get; set; }
-        public int IdPagamento { get; set; }
+        public int? IdPagamento { get; set; }
         public StatusPedidoEnum StatusPedido { get; set; }
-        public long PrecoTotal { get; set; }
+        public double PrecoTotal { get; set; }
 
         // Relacionamentos
         public Usuario Usuario { get; set; }

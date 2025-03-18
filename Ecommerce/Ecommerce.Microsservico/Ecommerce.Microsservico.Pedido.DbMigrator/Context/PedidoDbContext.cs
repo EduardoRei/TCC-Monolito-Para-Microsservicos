@@ -28,7 +28,7 @@ namespace Ecommerce.Microsservico.Pedido.DbMigrator.Context
                 .HasOne(pc => pc.Pedido)
                 .WithMany(c => c.ProdutoPedido)
                 .HasForeignKey(pc => pc.IdPedido)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProdutoPedido>()
                 .HasKey(pc => new { pc.IdProduto, pc.IdPedido }); 
@@ -36,7 +36,7 @@ namespace Ecommerce.Microsservico.Pedido.DbMigrator.Context
             modelBuilder.Entity<PedidoEntity>()
                 .HasMany(pc => pc.ProdutoPedido)
                 .WithOne(c => c.Pedido)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

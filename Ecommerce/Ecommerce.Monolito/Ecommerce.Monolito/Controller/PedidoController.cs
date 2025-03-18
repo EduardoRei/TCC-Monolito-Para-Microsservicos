@@ -48,47 +48,54 @@ namespace Ecommerce.Monolito.Controller
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(PedidoDto pedidoDto, FormaPagamentoEnum formaPagamento)
+        public async Task<IActionResult> Add(CreatePedidoDto createPedidoDto, FormaPagamentoEnum formaPagamento)
         {
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var usuario = await _usuarioService.GetUsuarioByIdAsync(pedidoDto.IdUsuario);
-                    long precoTotal = 0;
+                    var usuario = await _usuarioService.GetUsuarioByIdAsync(createPedidoDto.IdUsuario);
 
                     if (usuario == null)
                         return BadRequest("Usuário não encontrado");
 
-                    if (!pedidoDto.ProdutoPedido.Any())
+                    if (!createPedidoDto.CreateProdutoPedido.Any())
                         return BadRequest("Pedido sem produtos");
 
-                    if(!pedidoDto.ProdutoPedido.Any(x => x.Quantidade_Produto == 0))
+                    if(createPedidoDto.CreateProdutoPedido.Any(x => x.QuantidadeProduto == 0))
                         return BadRequest("Não é possivel adicionar um produto sem informar a quantidade");
 
-                    var produtos = await _produtoService.GetListaProdutosByIdListAsync(pedidoDto.ProdutoPedido.Select(x => x.IdProduto).ToList());
+                    var produtos = await _produtoService.GetListaProdutosByIdListAsync(createPedidoDto.CreateProdutoPedido.Select(x => x.IdProduto).ToList());
 
+                    if (produtos.Count == 0)
+                        return BadRequest("Nenhum produto foi encontrado.");
+
+                    if (produtos.Count != createPedidoDto.CreateProdutoPedido.Count)
+                        return BadRequest("Nem todos os produtos foram encontrados.");
+
+                    double precoTotal = 0;
                     foreach (var produto in produtos)
                     {
-                        var produtoPedido = pedidoDto.ProdutoPedido.FirstOrDefault(x => x.IdProduto == produto.Id);
-                        if (produto.QuantidadeEstoque < produtoPedido?.Quantidade_Produto)
+                        var produtoPedido = createPedidoDto.CreateProdutoPedido.FirstOrDefault(x => x.IdProduto == produto.Id);
+                        if (produto.QuantidadeEstoque < produtoPedido?.QuantidadeProduto)
                             return BadRequest($"A Quantidade solicitada de produto {produto.Nome} é maior do que a quantidade disponivel no estoque.");
 
-                        precoTotal += (long)(produto.PrecoUnitario ?? 0 * (produtoPedido?.Quantidade_Produto ?? 0));
+                        precoTotal += produto.PrecoUnitario ?? 0 * (produtoPedido?.QuantidadeProduto ?? 0);
                     }
 
-                    pedidoDto.StatusPedido = StatusPedidoEnum.SeparandoPedido;
-                    pedidoDto.PrecoTotal = precoTotal;
+                    var pedidoDto = new PedidoDto()
+                    {
+                        IdUsuario = createPedidoDto.IdUsuario,
+                        ProdutoPedido = createPedidoDto.CreateProdutoPedido.Select(p => new ProdutoPedidoDto()
+                        {
+                            IdProduto = p.IdProduto,
+                            QuantidadeProduto = p.QuantidadeProduto
+                        }).ToList(),
+                        PrecoTotal = precoTotal,
+                        StatusPedido = StatusPedidoEnum.SeparandoPedido
+                    };
 
                     await _service.AddAsync(pedidoDto);
-
-                    foreach (var pedidoProdutoDto in pedidoDto.ProdutoPedido)
-                    {
-                        await _produtoPedidoService.AddAsync(pedidoProdutoDto);
-                    }
-
-                    if (await _pagamentoService.PagamentoExistsByIdPedido(pedidoDto.Id))
-                        return BadRequest("Pagamento já cadastrado para este pedido");
 
                     await _pagamentoService.AddAsync(new PagamentoDto
                     {
@@ -100,9 +107,9 @@ namespace Ecommerce.Monolito.Controller
                     transaction.Complete();
                     return CreatedAtAction(nameof(Get), new { id = pedidoDto.Id }, pedidoDto);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    return StatusCode(500, "Ocorreu um erro ao processar o pedido");
+                    return StatusCode(500, "Ocorreu um erro ao processar o pedido" + e.StackTrace);
                 }
             }
         }

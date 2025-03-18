@@ -5,23 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddHttpClient("UsuarioService", client =>
-{
-    client.BaseAddress = new Uri("http://usuario/");
-});
-
-builder.Services.AddHttpClient("ProdutoService", client =>
-{
-    client.BaseAddress = new Uri("http://produto/");
-});
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<IProdutoPedidoService, ProdutoPedidoService>();
-builder.Services.AddScoped<IHttpService, HttpService>();
 
 builder.Services.AddDbContext<PedidoDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

@@ -16,8 +16,10 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task AddUsuarioAsync(UsuarioDto usuario)
         {
+            var entity = usuario.ToEntity();
             await DbContext.Usuario.AddAsync(usuario.ToEntity());
             await DbContext.SaveChangesAsync();
+            usuario.Id = entity.Id;
         }
 
         public async Task DeleteUsuarioByIdAsync(int id)
@@ -60,7 +62,7 @@ namespace Ecommerce.Monolito.Core.Service
             await DbContext.Usuario.Select(p => p.ToDto()).ToListAsync();
 
         public async Task<UsuarioDto?> GetUsuarioByIdAsync(int? id) =>
-            await DbContext.Usuario.Select(p => p.ToDto()).FirstOrDefaultAsync(x => x.Id == id);
+            await DbContext.Usuario.Where(x => x.Id == id).Select(p => p.ToDto()).FirstOrDefaultAsync();
 
         public async Task UpdateUsuarioAsync(UsuarioDto usuario)
         {
