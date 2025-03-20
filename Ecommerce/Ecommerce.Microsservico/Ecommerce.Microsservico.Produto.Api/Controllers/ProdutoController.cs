@@ -1,4 +1,6 @@
 ﻿using Ecommerce.Commons.Dtos;
+using Ecommerce.Commons.Enums;
+using Ecommerce.Commons.RabbitMq.Producer;
 using Ecommerce.Commons.Util;
 using Ecommerce.Microsservico.Produto.Api.Core.Entity;
 using Ecommerce.Microsservico.Produto.Api.Core.Interface;
@@ -12,11 +14,15 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
     {
         private readonly IProdutoService _produtoService;
         private readonly ICategoriaService _categoriaService;
+        private readonly IMessageProducer _producer;
 
-        public ProdutoController(IProdutoService productService, ICategoriaService categoriaService)
+        public ProdutoController(IProdutoService productService,
+                                 ICategoriaService categoriaService,
+                                 IMessageProducer producer)
         {
             _produtoService = productService;
             _categoriaService = categoriaService;
+            _producer = producer;
         }
 
         [HttpGet("{id}", Name = "GetProdutoById")]
@@ -24,9 +30,7 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
         {
             var produto = await _produtoService.GetProdutoByIdAsync(id);
             if (produto == null)
-            {
                 return NotFound();
-            }
 
             return Ok(produto);
         }
@@ -43,16 +47,12 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
         public async Task<ActionResult<IEnumerable<ProdutoDto>>> GetListProdutosByListIds([FromBody] List<int> listaIds)
         {
             if (listaIds == null || !listaIds.Any())
-            {
                 return BadRequest("A lista de IDs não pode ser vazia.");
-            }
 
             var produtos = await _produtoService.GetListaProdutosByIdListAsync(listaIds);
 
             if (produtos == null || !produtos.Any())
-            {
                 return NotFound("Nenhum produto encontrado para os IDs fornecidos.");
-            }
 
             return Ok(produtos);
         }
@@ -101,15 +101,11 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
         public async Task<IActionResult> UpdateProduto(ProdutoDto produtoDto)
         {
             if (produtoDto.Id <= 0)
-            {
                 return BadRequest("Id não encontrado.");
-            }
 
             var produto = await _produtoService.GetProdutoByIdAsync(produtoDto.Id);
             if (produto == null)
-            {
                 return NotFound($"Nenhum produto foi encontrado com o id: {produtoDto.Id}");
-            }
 
             if (produtoDto.QuantidadeEstoque.HasValue && produtoDto.QuantidadeEstoque > 0)
                 produto.QuantidadeEstoque = produtoDto.QuantidadeEstoque.Value;
@@ -129,26 +125,21 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
             return NoContent();
         }
 
-        [HttpPut(Name = "UpdateQuantidadeEstoqueProduto")]
-        public async Task<IActionResult> UpdateQuantidadeEstoqueProduto(List<ProdutoAtualizarDto> produtoAtualizar )
+        [HttpPut("UpdateQuantidadeEstoqueProduto", Name = "UpdateQuantidadeEstoqueProduto")]
+        public async Task<IActionResult> UpdateQuantidadeEstoqueProduto(int id, int quantidade)
         {
-            foreach (var produtoAtualizarDto in produtoAtualizar)
-            {
-                if (produtoAtualizarDto.Id <= 0)
-                {
-                    return BadRequest("Id não encontrado.");
-                }
-                var produto = await _produtoService.GetProdutoByIdAsync(produtoAtualizarDto.Id);
-                if (produto == null)
-                {
-                    return NotFound($"Nenhum produto foi encontrado com o id: {produtoAtualizarDto.Id}");
-                }
-            }
+            if (id <= 0)
+                return BadRequest("Id não encontrado.");
+            
+            var produto = await _produtoService.GetProdutoByIdAsync(id);
+            if (produto == null)
+                return NotFound($"Nenhum produto foi encontrado com o id: {id}");
+            
 
-            foreach (var produtoAtualizarDto in produtoAtualizar)
-            {
-                await _produtoService.RemoverQuantidadeProdutoAsync(produtoAtualizarDto.Id, produtoAtualizarDto.Quantidade);
-            }
+            await _produtoService.RemoverQuantidadeProdutoAsync(id, quantidade);
+
+            var mensagemProduto = new MensagemProdutoAlterado(id, AlteracaoProdutoEnum.QuantidadeAlterada);
+            await _producer.SendMessage(mensagemProduto, RabbitMqQueueEnum.ProdutoQueue, RabbitMqRoutingKeyEnum.ProdutoModificado);
 
             return NoContent();
         }

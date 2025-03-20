@@ -11,7 +11,7 @@ namespace Ecommerce.Commons.Extensions
                 
                 IdPedido = produtoPedido.IdPedido,
                 IdProduto = produtoPedido.IdProduto,
-                QuantidadeProduto = produtoPedido.QuantidadeProduto
+                QuantidadeProduto = produtoPedido.Quantidade_Produto
             };
 
         public static ProdutoPedido ToEntity(this ProdutoPedidoDto produtoPedido)
@@ -20,7 +20,7 @@ namespace Ecommerce.Commons.Extensions
 
                 IdPedido = produtoPedido.IdPedido,
                 IdProduto = produtoPedido.IdProduto,
-                QuantidadeProduto = produtoPedido.QuantidadeProduto
+                Quantidade_Produto = produtoPedido.QuantidadeProduto
             };
     }
 }

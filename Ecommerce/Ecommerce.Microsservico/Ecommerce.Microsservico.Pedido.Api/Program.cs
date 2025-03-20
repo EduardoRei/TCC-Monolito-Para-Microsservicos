@@ -1,3 +1,4 @@
+using Ecommerce.Commons.RabbitMq.Producer;
 using Ecommerce.Microsservico.Pedido.Api.Core.Interface;
 using Ecommerce.Microsservico.Pedido.Api.Core.Service;
 using Ecommerce.Microsservico.Pedido.DbMigrator.Context;
@@ -10,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<IProdutoPedidoService, ProdutoPedidoService>();
+builder.Services.AddScoped<IMessageProducer, RabbitMQProducer>();
 
 builder.Services.AddDbContext<PedidoDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

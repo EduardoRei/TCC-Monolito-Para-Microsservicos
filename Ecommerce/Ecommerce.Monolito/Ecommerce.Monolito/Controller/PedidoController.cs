@@ -92,7 +92,7 @@ namespace Ecommerce.Monolito.Controller
                             QuantidadeProduto = p.QuantidadeProduto
                         }).ToList(),
                         PrecoTotal = precoTotal,
-                        StatusPedido = StatusPedidoEnum.SeparandoPedido
+                        StatusPedido = StatusPedidoEnum.AguardandoPagamento
                     };
 
                     await _service.AddAsync(pedidoDto);

@@ -1,3 +1,4 @@
+using Ecommerce.Commons.RabbitMq.Producer;
 using Ecommerce.Microsservico.Pagamento.Api.Core.Interface;
 using Ecommerce.Microsservico.Pagamento.Api.Core.Service;
 using Ecommerce.Microsservico.Pagamento.DbMigrator.Context;
@@ -14,6 +15,7 @@ builder.Services.AddDbContext<PagamentoDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IMessageProducer, RabbitMQProducer>();
 builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 
 var app = builder.Build();

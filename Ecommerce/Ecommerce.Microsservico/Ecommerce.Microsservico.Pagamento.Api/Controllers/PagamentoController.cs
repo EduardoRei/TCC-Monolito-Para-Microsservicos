@@ -1,5 +1,7 @@
 ﻿using Ecommerce.Commons.Dtos;
 using Ecommerce.Commons.Enums;
+using Ecommerce.Commons.RabbitMq.Producer;
+using Ecommerce.Microsservico.Pagamento.Api.Core.Entities;
 using Ecommerce.Microsservico.Pagamento.Api.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,13 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
     public class PagamentoController : ControllerBase
     {
         private readonly IPagamentoService _service;
+        private readonly IMessageProducer _producer;
 
-        public PagamentoController(IPagamentoService service)
+        public PagamentoController(IPagamentoService service,
+                                   IMessageProducer producer )
         {
             _service = service;
+            _producer = producer;
         }
 
         [HttpGet("{id}")]
@@ -34,15 +39,22 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(PagamentoDto pagamento)
+        public async Task<IActionResult> Add(CreatePagamentoDto createPagamento)
         {
+            var pagamento = new PagamentoDto() { IdPedido = createPagamento.IdPedido, FormaPagamento = createPagamento.FormaPagamento};
             await _service.AddAsync(pagamento);
+            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id, EventoPagamentoEnum.PagamentoCriado);
+            await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PagamentoQueue, RabbitMqRoutingKeyEnum.PagamentoPedido);
             return CreatedAtAction(nameof(Get), new { id = pagamento.Id }, pagamento);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(PagamentoDto pagamento)
+        public async Task<IActionResult> Update(PagamentoDto pagamentoDto)
         {
+            var pagamento = await _service.GetByIdAsync(pagamentoDto.Id);
+            if (pagamento == null)
+                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {pagamentoDto.Id}, Id não encontrado.");
+            
             await _service.UpdateAsync(pagamento);
             return NoContent();
         }
@@ -52,10 +64,34 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
         {
             var pagamento = await _service.GetByIdAsync(id);
             if (pagamento == null)
-            {
                 return NotFound($"Não foi possivel alterar a forma de pagamento do Id {id}, Id não encontrado.");
-            }
+ 
+            pagamento.FormaPagamento = formaPagamento;
             await _service.UpdateAsync(pagamento);
+            return NoContent();
+        }
+
+        [HttpPut( "AlterarStatusPagamento")]
+        public async Task<IActionResult> UpdateStatusPagamento(int id, StatusPagamentoEnum statusPagamento)
+        {
+            var pagamento = await _service.GetByIdAsync(id);
+            if (pagamento == null)
+                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {id}, Id não encontrado.");
+            
+            pagamento.StatusPagamento = statusPagamento;
+            if(pagamento.StatusPagamento == StatusPagamentoEnum.PagamentoIdentificado 
+                || pagamento.StatusPagamento == StatusPagamentoEnum.ProcessandoPagamento)
+                pagamento.DataPagamento = DateTime.Now;
+
+            await _service.UpdateAsync(pagamento);
+
+            var eventoPagamento = EventoPagamentoEnum.PagamentoAprovado;
+            if(statusPagamento == StatusPagamentoEnum.PagamentoNegado)
+                eventoPagamento = EventoPagamentoEnum.PagamentoRecusado;
+
+            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id, eventoPagamento);
+            await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PagamentoQueue, RabbitMqRoutingKeyEnum.PagamentoPedido);
+
             return NoContent();
         }
 
