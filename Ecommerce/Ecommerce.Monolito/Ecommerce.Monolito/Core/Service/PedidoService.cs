@@ -4,6 +4,7 @@ using Ecommerce.Monolito.DbMigrator.Context;
 using Ecommerce.Commons.Core.Base;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.EntityFrameworkCore;
+using Ecommerce.Commons.Enums;
 
 namespace Ecommerce.Monolito.Core.Service
 {
@@ -42,8 +43,12 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task UpdateAsync(PedidoDto pedido)
         {
-            DbContext.Pedido.Update(pedido.ToEntity());
-            await DbContext.SaveChangesAsync();
+            var existingEntity = await DbContext.Pedido.FindAsync(pedido.Id);
+            if (existingEntity != null)
+            {
+                DbContext.Entry(existingEntity).CurrentValues.SetValues(pedido.ToEntity());
+                await DbContext.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(int id)
@@ -53,6 +58,17 @@ namespace Ecommerce.Monolito.Core.Service
             {
                 var pedido = pedidoDto.ToEntity();
                 DbContext.Pedido.Remove(pedido);
+                await DbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdatePedidoStatusAsync(int id, StatusPedidoEnum statusPedido)
+        {
+            var pedido = await DbContext.Pedido.FirstOrDefaultAsync(x => x.Id == id);
+            if (pedido != null)
+            {
+                pedido.StatusPedido = statusPedido;
+                DbContext.Pedido.Update(pedido);
                 await DbContext.SaveChangesAsync();
             }
         }

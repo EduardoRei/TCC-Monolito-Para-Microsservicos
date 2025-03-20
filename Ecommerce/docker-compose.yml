@@ -64,6 +64,20 @@ services:
     networks:
       - ecommerce-network
 
+  rabbitmq-consumer:
+    build:
+      context: .
+      dockerfile: ./Ecommerce.Microsservico/Consumer/RabbitMqConsumer/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5005:8080"
+    depends_on:
+      - "rabbitmq"
+    networks:
+      - ecommerce-network
+    restart: always
+
   monolito:
     build:
       context: .
@@ -71,7 +85,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "5005:8080"
+      - "5000:8080"
     depends_on:
       - "sqlserver"
     networks:

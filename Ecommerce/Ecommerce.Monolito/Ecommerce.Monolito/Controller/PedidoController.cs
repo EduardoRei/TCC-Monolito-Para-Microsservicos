@@ -97,12 +97,20 @@ namespace Ecommerce.Monolito.Controller
 
                     await _service.AddAsync(pedidoDto);
 
-                    await _pagamentoService.AddAsync(new PagamentoDto
+                    var pagamento = new PagamentoDto
                     {
                         IdPedido = pedidoDto.Id,
                         FormaPagamento = formaPagamento,
                         StatusPagamento = StatusPagamentoEnum.AguardandoPagamento
-                    });
+                    };
+
+                    await _pagamentoService.AddAsync(pagamento);
+
+                    foreach (var produto in pedidoDto.ProdutoPedido)
+                        await _produtoService.RemoverQuantidadeProdutoAsync(produto.IdProduto, produto.QuantidadeProduto);
+
+                    pedidoDto.IdPagamento = pagamento.Id;
+                    await _service.UpdateAsync(pedidoDto);
 
                     transaction.Complete();
                     return CreatedAtAction(nameof(Get), new { id = pedidoDto.Id }, pedidoDto);

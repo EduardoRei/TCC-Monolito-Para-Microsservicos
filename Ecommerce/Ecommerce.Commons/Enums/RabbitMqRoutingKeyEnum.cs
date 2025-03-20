@@ -4,7 +4,8 @@
     {
         PedidoPagamento = 0,
         PedidoProduto = 1,
-        PagamentoPedido = 2,
-        ProdutoModificado = 3
+        PagamentoPedidoCriado = 2,
+        PagamentoPedidoEvento = 3,
+        ProdutoModificado = 4
     }
 }
