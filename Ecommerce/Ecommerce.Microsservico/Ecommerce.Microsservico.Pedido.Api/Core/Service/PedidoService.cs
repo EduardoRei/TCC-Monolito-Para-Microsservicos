@@ -38,8 +38,12 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
 
         public async Task UpdateAsync(PedidoDto pedido)
         {
-            DbContext.Pedido.Update(pedido.ToEntity());
-            await DbContext.SaveChangesAsync();
+            var existingEntity = await DbContext.Pedido.FindAsync(pedido.Id);
+            if (existingEntity != null)
+            {
+                DbContext.Entry(existingEntity).CurrentValues.SetValues(pedido.ToEntity());
+                await DbContext.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(int id)

@@ -43,8 +43,8 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
         {
             var pagamento = new PagamentoDto() { IdPedido = createPagamento.IdPedido, FormaPagamento = createPagamento.FormaPagamento};
             await _service.AddAsync(pagamento);
-            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id, EventoPagamentoEnum.PagamentoCriado);
-            await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PagamentoQueue, RabbitMqRoutingKeyEnum.PagamentoPedido);
+            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id, StatusPagamentoEnum.AguardandoPagamento);
+            await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PagamentoQueue, RabbitMqRoutingKeyEnum.PagamentoPedidoCriado);
             return CreatedAtAction(nameof(Get), new { id = pagamento.Id }, pagamento);
         }
 
@@ -85,12 +85,8 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
 
             await _service.UpdateAsync(pagamento);
 
-            var eventoPagamento = EventoPagamentoEnum.PagamentoAprovado;
-            if(statusPagamento == StatusPagamentoEnum.PagamentoNegado)
-                eventoPagamento = EventoPagamentoEnum.PagamentoRecusado;
-
-            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id, eventoPagamento);
-            await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PagamentoQueue, RabbitMqRoutingKeyEnum.PagamentoPedido);
+            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id, statusPagamento);
+            await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PagamentoQueue, RabbitMqRoutingKeyEnum.PagamentoPedidoEvento);
 
             return NoContent();
         }

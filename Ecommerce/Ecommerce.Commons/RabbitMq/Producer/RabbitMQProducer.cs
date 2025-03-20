@@ -13,7 +13,7 @@ namespace Ecommerce.Commons.RabbitMq.Producer
             using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
 
-            var exchangeName = "exchange " + routingKey.ToString();
+            var exchangeName = "exchange" + routingKey.ToString();
 
             await channel.ExchangeDeclareAsync(exchange: exchangeName, type: ExchangeType.Direct);
 

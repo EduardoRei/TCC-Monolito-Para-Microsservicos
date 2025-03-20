@@ -1,4 +1,5 @@
 ﻿using Ecommerce.Commons.Dtos;
+using Ecommerce.Commons.Enums;
 namespace Ecommerce.Monolito.Core.Interface
 {
     public interface IPedidoService
@@ -7,6 +8,7 @@ namespace Ecommerce.Monolito.Core.Interface
         Task<IEnumerable<PedidoDto>> GetAllAsync();
         Task AddAsync(PedidoDto pedido);
         Task UpdateAsync(PedidoDto pedido);
+        Task UpdatePedidoStatusAsync(int idPedido, StatusPedidoEnum statusPedido);
         Task DeleteAsync(int id);
     }
 }

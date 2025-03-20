@@ -98,14 +98,14 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
         }
 
         [HttpPut("{id}", Name = "UpdateProduto")]
-        public async Task<IActionResult> UpdateProduto(ProdutoDto produtoDto)
+        public async Task<IActionResult> UpdateProduto(int id, ProdutoDto produtoDto)
         {
-            if (produtoDto.Id <= 0)
+            if (id <= 0)
                 return BadRequest("Id não encontrado.");
 
-            var produto = await _produtoService.GetProdutoByIdAsync(produtoDto.Id);
+            var produto = await _produtoService.GetProdutoByIdAsync(id);
             if (produto == null)
-                return NotFound($"Nenhum produto foi encontrado com o id: {produtoDto.Id}");
+                return NotFound($"Nenhum produto foi encontrado com o id: {id}");
 
             if (produtoDto.QuantidadeEstoque.HasValue && produtoDto.QuantidadeEstoque > 0)
                 produto.QuantidadeEstoque = produtoDto.QuantidadeEstoque.Value;
@@ -126,19 +126,18 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
         }
 
         [HttpPut("UpdateQuantidadeEstoqueProduto", Name = "UpdateQuantidadeEstoqueProduto")]
-        public async Task<IActionResult> UpdateQuantidadeEstoqueProduto(int id, int quantidade)
+        public async Task<IActionResult> UpdateQuantidadeEstoqueProduto(ProdutoAtualizarDto produtoAtualizar)
         {
-            if (id <= 0)
+            if (produtoAtualizar.IdProduto <= 0)
                 return BadRequest("Id não encontrado.");
             
-            var produto = await _produtoService.GetProdutoByIdAsync(id);
+            var produto = await _produtoService.GetProdutoByIdAsync(produtoAtualizar.IdProduto);
             if (produto == null)
-                return NotFound($"Nenhum produto foi encontrado com o id: {id}");
-            
+                return NotFound($"Nenhum produto foi encontrado com o id: {produtoAtualizar.IdProduto}");
 
-            await _produtoService.RemoverQuantidadeProdutoAsync(id, quantidade);
+            await _produtoService.RemoverQuantidadeProdutoAsync(produtoAtualizar.IdProduto, produtoAtualizar.QuantidadeProduto);
 
-            var mensagemProduto = new MensagemProdutoAlterado(id, AlteracaoProdutoEnum.QuantidadeAlterada);
+            var mensagemProduto = new MensagemProdutoAlterado(produtoAtualizar.IdProduto, AlteracaoProdutoEnum.QuantidadeAlterada);
             await _producer.SendMessage(mensagemProduto, RabbitMqQueueEnum.ProdutoQueue, RabbitMqRoutingKeyEnum.ProdutoModificado);
 
             return NoContent();

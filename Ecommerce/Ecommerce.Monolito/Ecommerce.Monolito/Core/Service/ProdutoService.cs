@@ -56,8 +56,23 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task UpdateProdutoAsync(ProdutoDto produto)
         {
-            DbContext.Produto.Update(produto.ToEntity());
-            await DbContext.SaveChangesAsync();
+            var existingEntity = await DbContext.Produto.FindAsync(produto.Id);
+            if (existingEntity != null)
+            {
+                DbContext.Entry(existingEntity).CurrentValues.SetValues(produto.ToEntity());
+                await DbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task RemoverQuantidadeProdutoAsync(int id, int quantidade)
+        {
+            var produto = await DbContext.Produto.FirstOrDefaultAsync(x => x.Id == id);
+            if (produto != null)
+            {
+                produto.QuantidadeEstoque -= quantidade;
+                DbContext.Produto.Update(produto);
+                await DbContext.SaveChangesAsync();
+            }
         }
     }
 }

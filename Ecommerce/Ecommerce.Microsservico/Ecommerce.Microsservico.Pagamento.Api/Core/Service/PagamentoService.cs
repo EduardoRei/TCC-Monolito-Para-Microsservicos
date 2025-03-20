@@ -34,8 +34,12 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Core.Service
 
         public async Task UpdateAsync(PagamentoDto pagamento)
         {
-            DbContext.Pagamento.Update(pagamento.ToEntity());
-            await DbContext.SaveChangesAsync();
+            var existingEntity = await DbContext.Pagamento.FindAsync(pagamento.Id);
+            if (existingEntity != null)
+            {
+                DbContext.Entry(existingEntity).CurrentValues.SetValues(pagamento.ToEntity());
+                await DbContext.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(int id)

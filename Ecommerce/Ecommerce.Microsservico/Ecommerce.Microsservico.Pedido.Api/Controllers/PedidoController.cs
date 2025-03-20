@@ -102,7 +102,7 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
                 {
                     await _service.AddAsync(pedidoDto);
 
-                    var mensagemPagamento = new MensagemPedidoCriadoPagamento(pedidoDto.Id, formaPagamento, OperacaoPedidoEnum.PedidoCriado);
+                    var mensagemPagamento = new MensagemPedidoCriadoPagamento(pedidoDto.Id, formaPagamento);
                     await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoPagamento);
                     foreach(var produto in listaProdutoPedidoDto)
                         await _producer.SendMessage(new MensagemPedidoCriadoProduto(produto.IdProduto, produto.QuantidadeProduto), RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoProduto);
@@ -118,8 +118,43 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(PedidoDto pedido)
+        public async Task<IActionResult> Update(PedidoDto pedidoDto)
         {
+            var pedido = await _service.GetByIdAsync(pedidoDto.Id);
+            if (pedido == null)
+                return BadRequest("Pedido não encontrado");
+
+            pedido.StatusPedido = pedidoDto.StatusPedido;
+            pedido.IdPagamento = pedidoDto.IdPagamento;
+            pedido.PrecoTotal = pedido.PrecoTotal;
+
+            await _service.UpdateAsync(pedido);
+            return NoContent();
+        }
+
+        [HttpPut("AtualizarIdPagamento", Name = "AtualizarIdPagamento")]
+        public async Task<IActionResult> UpdateIdPagamento(AtualizarIdPagamentoDto atualizarPedido)
+        {
+            var pedido = await _service.GetByIdAsync(atualizarPedido.IdPedido);
+            if (pedido == null)
+                return BadRequest("Pedido não encontrado");
+
+            pedido.IdPagamento = atualizarPedido.IdPagamento;
+            await _service.UpdateAsync(pedido);
+            return NoContent();
+        }
+
+        [HttpPut("AtualizarStatusPagamento", Name = "AtualizarStatusPagamento")]
+        public async Task<IActionResult> UpdateStatusPagamento(AtualizarPagamentoDto atualizarPedido)
+        {
+            var statusPedido = atualizarPedido.StatusPagamento == StatusPagamentoEnum.PagamentoIdentificado ||
+                                atualizarPedido.StatusPagamento == StatusPagamentoEnum.ProcessandoPagamento ? StatusPedidoEnum.SeparandoPedido : StatusPedidoEnum.PedidoCancelado;
+
+            var pedido = await _service.GetByIdAsync(atualizarPedido.IdPedido);
+            if (pedido == null)
+                return BadRequest("Pedido não encontrado");
+
+            pedido.StatusPedido = statusPedido;
             await _service.UpdateAsync(pedido);
             return NoContent();
         }

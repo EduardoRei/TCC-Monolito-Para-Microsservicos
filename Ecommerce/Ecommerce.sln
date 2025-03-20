@@ -44,6 +44,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Microsservico.Pag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.Microsservico.Usuario.Api", "Ecommerce.Microsservico\Ecommerce.Microsservico.Usuario.Api\Ecommerce.Microsservico.Usuario.Api.csproj", "{787057E0-6022-4869-B276-83D9B9751AE8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Consumer", "Consumer", "{11C94EA2-74F2-463B-A131-9832E26E6F6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMqConsumer", "Ecommerce.Microsservico\Consumer\RabbitMqConsumer\RabbitMqConsumer.csproj", "{D1B0AE4C-3BB9-4525-9084-01E4EA4BB106}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +98,10 @@ Global
 		{787057E0-6022-4869-B276-83D9B9751AE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{787057E0-6022-4869-B276-83D9B9751AE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{787057E0-6022-4869-B276-83D9B9751AE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1B0AE4C-3BB9-4525-9084-01E4EA4BB106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1B0AE4C-3BB9-4525-9084-01E4EA4BB106}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1B0AE4C-3BB9-4525-9084-01E4EA4BB106}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1B0AE4C-3BB9-4525-9084-01E4EA4BB106}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,6 +122,8 @@ Global
 		{AC2031BF-92BA-4B3E-9DE2-EBA86B1FADB1} = {9573028D-6064-42EC-B77D-505E1C45717B}
 		{269C68D3-F791-4EED-BA35-5529B48740F8} = {9573028D-6064-42EC-B77D-505E1C45717B}
 		{787057E0-6022-4869-B276-83D9B9751AE8} = {AA39D1A6-22CA-456F-B680-FB9D79E4AA68}
+		{11C94EA2-74F2-463B-A131-9832E26E6F6B} = {D74224F4-C6BD-4B3A-8485-307CFFE7A895}
+		{D1B0AE4C-3BB9-4525-9084-01E4EA4BB106} = {11C94EA2-74F2-463B-A131-9832E26E6F6B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7656CD5E-2775-4C56-A1AE-AC24286F333A}

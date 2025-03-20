@@ -58,8 +58,12 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task UpdateCategoriaAsync(CategoriaDto categoria)
         {
-            DbContext.Categoria.Update(categoria.ToEntity());
-            await DbContext.SaveChangesAsync();
+            var existingEntity = await DbContext.Categoria.FindAsync(categoria.Id);
+            if (existingEntity != null)
+            {
+                DbContext.Entry(existingEntity).CurrentValues.SetValues(categoria.ToEntity());
+                await DbContext.SaveChangesAsync();
+            }
         }
     }
 }
