@@ -1,5 +1,7 @@
 ﻿using Ecommerce.Commons.Dtos;
 using Ecommerce.Commons.Enums;
+using Ecommerce.Commons.RabbitMq.Producer;
+using Ecommerce.Microsservico.Pedido.Api.Core.Entities;
 using Ecommerce.Microsservico.Pedido.Api.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
@@ -15,13 +17,16 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
 
         private readonly IPedidoService _service;
         private readonly IProdutoPedidoService _produtoPedidoService;
+        private readonly IMessageProducer _producer;
 
         public PedidoController(
                 IPedidoService service,
+                IMessageProducer producer,
                 IProdutoPedidoService produtoPedidoService)
         {
             _service = service;
             _produtoPedidoService = produtoPedidoService;
+            _producer = producer;
         }
 
         [HttpGet("{id}")]
@@ -42,25 +47,6 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
             var pedidos = await _service.GetAllAsync();
             return Ok(pedidos);
         }
-
-        /*
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProduto(int id)
-        {
-            Produto produto = null;
-            using (var httpClient = new HttpClient())
-            {
-                var response = await httpClient.GetAsync($"http://produto-api:8080/api/Produto/{id}");
-                if (response.IsSuccessStatusCode)
-                {
-                    produto = await response.Content.ReadFromJsonAsync<Produto>();
-                    var ex = StatusCode((int)response.StatusCode, response.ReasonPhrase);
-                }
-            }
-            return Ok(new { Pedido = "PedidoInfo", Produto = produto });
-        }
-        */
 
         [HttpPost]
         public async Task<IActionResult> Add(CreatePedidoDto createPedidoDto, FormaPagamentoEnum formaPagamento)
@@ -109,15 +95,17 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
                     IdUsuario = createPedidoDto.IdUsuario,
                     ProdutoPedido = listaProdutoPedidoDto,
                     PrecoTotal = precoTotal,
-                    StatusPedido = StatusPedidoEnum.SeparandoPedido
+                    StatusPedido = StatusPedidoEnum.AguardandoPagamento
                 };
 
                 using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     await _service.AddAsync(pedidoDto);
 
-                    // Disparar mensagem para o microsserviço de pagamento para criar um pagamento com as informações nescessarias para esse pedio
-                    // Disparar mensagem para o microsserviço de estoque para atualizar a quantidade de produtos no estoque
+                    var mensagemPagamento = new MensagemPedidoCriadoPagamento(pedidoDto.Id, formaPagamento, OperacaoPedidoEnum.PedidoCriado);
+                    await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoPagamento);
+                    foreach(var produto in listaProdutoPedidoDto)
+                        await _producer.SendMessage(new MensagemPedidoCriadoProduto(produto.IdProduto, produto.QuantidadeProduto), RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoProduto);
 
                     transaction.Complete();
                     return CreatedAtAction(nameof(Get), new { id = pedidoDto.Id }, pedidoDto);
@@ -128,7 +116,6 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
                 return StatusCode(500, "Ocorreu um erro ao processar o pedido: " + e.StackTrace);
             }
         }
-
 
         [HttpPut]
         public async Task<IActionResult> Update(PedidoDto pedido)

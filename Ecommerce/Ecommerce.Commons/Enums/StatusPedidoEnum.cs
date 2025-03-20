@@ -2,8 +2,9 @@
 {
     public enum StatusPedidoEnum
     {
-        SeparandoPedido = 0,
-        PedidoEnviado = 1,
-        PedidoEntregue = 2
+        AguardandoPagamento = 0,
+        SeparandoPedido = 1,
+        PedidoEnviado = 2,
+        PedidoEntregue = 3
     }
 }

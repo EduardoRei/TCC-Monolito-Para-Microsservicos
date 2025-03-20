@@ -1,3 +1,4 @@
+using Ecommerce.Commons.RabbitMq.Producer;
 using Ecommerce.Microsservico.Categoria.Api.Core.Service;
 using Ecommerce.Microsservico.Produto.Api.Core.Interface;
 using Ecommerce.Microsservico.Produto.Api.Core.Service;
@@ -18,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IMessageProducer, RabbitMQProducer>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
