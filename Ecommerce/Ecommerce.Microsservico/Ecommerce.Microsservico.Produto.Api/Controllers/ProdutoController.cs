@@ -86,7 +86,7 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
             if (!produtoDto.IdCategoria.HasValue || produtoDto.IdCategoria <= 0)
                 return BadRequest("IdCategoria é obrigatório.");
 
-            if (await _produtoService.ExisteProdutoAsync(produtoDto.Nome, produtoDto.IdCategoria))
+            if (!await _produtoService.ExisteProdutoAsync(produtoDto.Nome, produtoDto.IdCategoria))
                 return BadRequest("Ja existe este produto.");
 
             if (!await _categoriaService.ExisteCategoriaAsync(produtoDto.IdCategoria))
@@ -97,15 +97,15 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
             return CreatedAtAction(nameof(GetProdutoById), new { id = produtoDto.Id }, produtoDto);
         }
 
-        [HttpPut("{id}", Name = "UpdateProduto")]
-        public async Task<IActionResult> UpdateProduto(int id, ProdutoDto produtoDto)
+        [HttpPut( Name = "UpdateProduto")]
+        public async Task<IActionResult> UpdateProduto(ProdutoDto produtoDto)
         {
-            if (id <= 0)
+            if (produtoDto.Id <= 0)
                 return BadRequest("Id não encontrado.");
 
-            var produto = await _produtoService.GetProdutoByIdAsync(id);
+            var produto = await _produtoService.GetProdutoByIdAsync(produtoDto.Id);
             if (produto == null)
-                return NotFound($"Nenhum produto foi encontrado com o id: {id}");
+                return NotFound($"Nenhum produto foi encontrado com o id: {produtoDto.Id}");
 
             if (produtoDto.QuantidadeEstoque.HasValue && produtoDto.QuantidadeEstoque > 0)
                 produto.QuantidadeEstoque = produtoDto.QuantidadeEstoque.Value;

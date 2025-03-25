@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Ecommerce.Monolito.Controller
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsuarioController : ControllerBase
 
     {
@@ -84,7 +84,7 @@ namespace Ecommerce.Monolito.Controller
         }
 
 
-        [HttpPut("{id}", Name = "UpdateUsuario")]
+        [HttpPut(Name = "UpdateUsuario")]
         public async Task<IActionResult> UpdateUsuario(UsuarioDto usuarioDto)
         {
             if (usuarioDto.Id <= 0)

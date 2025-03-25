@@ -1,0 +1,36 @@
+_format_version: "3.0"
+services:
+  - name: produto-service
+    url: http://produto-api:8080
+    routes:
+      - name: produto-route
+        paths:
+          - /produto
+
+  - name: usuario-service
+    url: http://usuario-api:8080
+    routes:
+      - name: usuario-route
+        paths:
+          - /usuario
+
+  - name: pagamento-service
+    url: http://pagamento-api:8080
+    routes:
+      - name: pagamento-route
+        paths:
+          - /pagamento
+
+  - name: pedido-service
+    url: http://pedido-api:8080
+    routes:
+      - name: pedido-route
+        paths:
+          - /pedido
+
+  - name: monolito-service
+    url: http://monolito:8080
+    routes:
+      - name: monolito-route
+        paths:
+          - /

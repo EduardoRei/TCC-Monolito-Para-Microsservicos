@@ -40,7 +40,7 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task<bool> ExisteNomeCategoriaAsync(string nome)
         {
-            var categoriaExiste = await DbContext.Categoria.FirstOrDefaultAsync(x => string.Equals(x.Nome, nome, StringComparison.OrdinalIgnoreCase));
+            var categoriaExiste = await DbContext.Categoria.FirstOrDefaultAsync(x => x.Nome.ToLower() == nome.ToLower());
 
             return categoriaExiste != null;
         }

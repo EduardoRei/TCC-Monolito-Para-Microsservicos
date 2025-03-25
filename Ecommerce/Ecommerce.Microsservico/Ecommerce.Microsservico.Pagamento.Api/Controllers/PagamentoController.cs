@@ -43,7 +43,7 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
         {
             var pagamento = new PagamentoDto() { IdPedido = createPagamento.IdPedido, FormaPagamento = createPagamento.FormaPagamento};
             await _service.AddAsync(pagamento);
-            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id, StatusPagamentoEnum.AguardandoPagamento);
+            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id);
             await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PagamentoQueue, RabbitMqRoutingKeyEnum.PagamentoPedidoCriado);
             return CreatedAtAction(nameof(Get), new { id = pagamento.Id }, pagamento);
         }
@@ -72,20 +72,20 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
         }
 
         [HttpPut( "AlterarStatusPagamento")]
-        public async Task<IActionResult> UpdateStatusPagamento(int id, StatusPagamentoEnum statusPagamento)
+        public async Task<IActionResult> UpdateStatusPagamento(UpdatePagamentoDto updatePagamento)
         {
-            var pagamento = await _service.GetByIdAsync(id);
+            var pagamento = await _service.GetByIdAsync(updatePagamento.id);
             if (pagamento == null)
-                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {id}, Id não encontrado.");
+                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {updatePagamento.id}, Id não encontrado.");
             
-            pagamento.StatusPagamento = statusPagamento;
+            pagamento.StatusPagamento = updatePagamento.statusPagamento;
             if(pagamento.StatusPagamento == StatusPagamentoEnum.PagamentoIdentificado 
                 || pagamento.StatusPagamento == StatusPagamentoEnum.ProcessandoPagamento)
                 pagamento.DataPagamento = DateTime.Now;
 
             await _service.UpdateAsync(pagamento);
 
-            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id, statusPagamento);
+            var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id);
             await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PagamentoQueue, RabbitMqRoutingKeyEnum.PagamentoPedidoEvento);
 
             return NoContent();
