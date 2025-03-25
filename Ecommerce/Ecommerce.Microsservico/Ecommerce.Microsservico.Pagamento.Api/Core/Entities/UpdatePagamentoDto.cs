@@ -1,6 +1,6 @@
-﻿namespace Ecommerce.Microsservico.Pagamento.Api.Core.Entities
+﻿using Ecommerce.Commons.Enums;
+
+namespace Ecommerce.Microsservico.Pagamento.Api.Core.Entities
 {
-    public class UpdatePagamentoDto
-    {
-    }
+    public record UpdatePagamentoDto (int id, StatusPagamentoEnum statusPagamento);
 }

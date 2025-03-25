@@ -13,9 +13,9 @@ namespace RabbitMqConsumer
     public class HttpClientService : IHttpClientService
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        private const string PagamentoApiUrl = "http://pagamento-api:8080/api/Pagamento/";
-        private const string ProdutoApiUrl = "http://produto-api:8080/api/Produto/";
-        private const string PedidoApiUrl = "http://pedido-api:8080/api/Pedido/";
+        private const string PagamentoApiUrl = "http://kong:8000/pagamento/api/Pagamento/";
+        private const string ProdutoApiUrl = "http://kong:8000/produto/api/Produto/";
+        private const string PedidoApiUrl = "http://kong:8000/pedido/api/Pedido/";
 
         public async Task PostCriarPagamentoAsync(string message)
         {
@@ -32,7 +32,7 @@ namespace RabbitMqConsumer
         public async Task PutStatusPagamentoAsync(string message)
         {
             Console.WriteLine(message);
-            await PutAsync($"{PagamentoApiUrl}AlterarStatusPagamento", message);
+            await PutAsync($"{PagamentoApiUrl}AlterarStatusPedido", message);
         }
 
         public async Task PutPedidoIdPagamentoAsync(string message)

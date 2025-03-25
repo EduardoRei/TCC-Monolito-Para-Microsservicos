@@ -19,6 +19,9 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
         private readonly IProdutoPedidoService _produtoPedidoService;
         private readonly IMessageProducer _producer;
 
+        private const string UsuarioApiUrl = "http://kong:8000/usuario/api/Usuario/";
+        private const string ProdutoApiUrl = "http://kong:8000/produto/api/Produto/";
+
         public PedidoController(
                 IPedidoService service,
                 IMessageProducer producer,
@@ -144,7 +147,7 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
             return NoContent();
         }
 
-        [HttpPut("AtualizarStatusPagamento", Name = "AtualizarStatusPagamento")]
+        [HttpPut("AtualizarStatusPedido", Name = "AtualizarStatusPagamento")]
         public async Task<IActionResult> UpdateStatusPagamento(AtualizarPagamentoDto atualizarPedido)
         {
             var statusPedido = atualizarPedido.StatusPagamento == StatusPagamentoEnum.PagamentoIdentificado ||
@@ -170,7 +173,7 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
         {
             using (var httpClient = new HttpClient())
             {
-                var response = await httpClient.GetAsync($"http://usuario-api:8080/api/Usuario/{id}");
+                var response = await httpClient.GetAsync(UsuarioApiUrl + id);
                 return response.IsSuccessStatusCode;
             }
         }
@@ -182,7 +185,7 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
             {
                 var jsonContent = new StringContent(JsonSerializer.Serialize(listaIds), Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync("http://produto-api:8080/api/Produto/getListProdutosByListIds", jsonContent);
+                var response = await httpClient.PostAsync(ProdutoApiUrl + "getListProdutosByListIds", jsonContent);
 
                 if (response.IsSuccessStatusCode)
                 {

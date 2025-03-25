@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Commons.Dtos;
 using Ecommerce.Commons.Enums;
+using Ecommerce.Monolito.Core.Enity;
 using Ecommerce.Monolito.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Transactions;
@@ -51,30 +52,33 @@ namespace Ecommerce.Monolito.Controller
         }
 
         [HttpPut("AlterarFormaPagamento")]
-        public async Task<IActionResult> UpdateFormaPagamento(int id, FormaPagamentoEnum formaPagamento)
+        public async Task<IActionResult> UpdateFormaPagamento(UpdateFormaPagamentoDto updateForma)
         {
-            var pagamento = await _service.GetByIdAsync(id);
+            var pagamento = await _service.GetByIdAsync(updateForma.Id);
             if (pagamento == null)
-                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {id}, Id não encontrado.");
+                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {updateForma.Id}, Id não encontrado.");
+
+            pagamento.FormaPagamento = updateForma.FormaPagamento;
 
             await _service.UpdateAsync(pagamento);
             return NoContent();
         }
 
         [HttpPut("RealizarPagamento")]
-        public async Task<IActionResult> UpdateRealizarPagamento(int id, StatusPagamentoEnum statusPagamento)
+        public async Task<IActionResult> UpdateRealizarPagamento(RealizarPagamentoDto realizarPagamento)
         {
-            var pagamento = await _service.GetByIdAsync(id);
+            var pagamento = await _service.GetByIdAsync(realizarPagamento.Id);
             if (pagamento == null)
-                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {id}, Id não encontrado.");
+                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {realizarPagamento.Id}, Id não encontrado.");
 
-            pagamento.StatusPagamento = statusPagamento;
+            pagamento.StatusPagamento = realizarPagamento.StatusPagamento;
+            pagamento.DataPagamento = DateTime.Now;
             using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 await _service.UpdateAsync(pagamento);
                 var statusPedido = StatusPedidoEnum.PedidoCancelado;
-                if (statusPagamento == StatusPagamentoEnum.ProcessandoPagamento || 
-                    statusPagamento == StatusPagamentoEnum.PagamentoIdentificado)
+                if (realizarPagamento.StatusPagamento == StatusPagamentoEnum.ProcessandoPagamento || 
+                    realizarPagamento.StatusPagamento == StatusPagamentoEnum.PagamentoIdentificado)
                     statusPedido = StatusPedidoEnum.SeparandoPedido;
 
                 await _pedidoService.UpdatePedidoStatusAsync(pagamento.IdPedido, statusPedido);

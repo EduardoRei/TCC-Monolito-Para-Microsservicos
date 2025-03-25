@@ -78,7 +78,7 @@ namespace Ecommerce.Monolito.Controller
             return CreatedAtAction(nameof(GetProdutoById), new { id = produtoDto.Id }, produtoDto);
         }
 
-        [HttpPut("{id}", Name = "UpdateProduto")]
+        [HttpPut( Name = "UpdateProduto")]
         public async Task<IActionResult> UpdateProduto(ProdutoDto produtoDto)
         {
             if (produtoDto.Id <= 0)

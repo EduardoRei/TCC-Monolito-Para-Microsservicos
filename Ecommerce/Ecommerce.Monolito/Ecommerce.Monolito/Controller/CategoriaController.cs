@@ -57,15 +57,15 @@ namespace Ecommerce.Monolito.Controller
             return CreatedAtAction(nameof(GetCategoriaById), new { id = categoriaDto.Id }, categoriaDto);
         }
 
-        [HttpPut("{id}", Name = "UpdateCategoria")]
-        public async Task<IActionResult> UpdateCategoria(int id, CategoriaDto categoriaDto)
+        [HttpPut( Name = "UpdateCategoria")]
+        public async Task<IActionResult> UpdateCategoria(CategoriaDto categoriaDto)
         {
-            if (id <= 0)
+            if (categoriaDto.Id <= 0)
             {
                 return BadRequest();
             }
 
-            var categoria = await _categoriaService.GetCategoriaByIdAsync(id);
+            var categoria = await _categoriaService.GetCategoriaByIdAsync(categoriaDto.Id);
             if (categoria == null)
             {
                 return NotFound();
