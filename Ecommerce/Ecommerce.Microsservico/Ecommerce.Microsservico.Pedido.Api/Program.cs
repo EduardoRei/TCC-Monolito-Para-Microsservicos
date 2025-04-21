@@ -5,6 +5,8 @@ using Ecommerce.Microsservico.Pedido.DbMigrator.Context;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+string UsuarioApiUrl = "http://kong:8000/usuario/api/Usuario/";
+string ProdutoApiUrl = "http://kong:8000/produto/api/Produto/";
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -12,6 +14,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<IProdutoPedidoService, ProdutoPedidoService>();
 builder.Services.AddScoped<IMessageProducer, RabbitMQProducer>();
+
+builder.Services.AddHttpClient<IUsuarioService, UsuarioService>(client =>
+{
+    client.BaseAddress = new Uri(UsuarioApiUrl);
+});
+
+builder.Services.AddHttpClient<IProdutoService, ProdutoService>(client =>
+{
+    client.BaseAddress = new Uri(ProdutoApiUrl);
+});
 
 builder.Services.AddDbContext<PedidoDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

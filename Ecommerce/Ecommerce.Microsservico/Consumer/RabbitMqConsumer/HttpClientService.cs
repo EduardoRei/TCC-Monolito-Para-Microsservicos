@@ -32,7 +32,7 @@ namespace RabbitMqConsumer
         public async Task PutStatusPagamentoAsync(string message)
         {
             Console.WriteLine(message);
-            await PutAsync($"{PagamentoApiUrl}AlterarStatusPedido", message);
+            await PutAsync($"{PagamentoApiUrl}AlterarStatusPagamento", message);
         }
 
         public async Task PutPedidoIdPagamentoAsync(string message)

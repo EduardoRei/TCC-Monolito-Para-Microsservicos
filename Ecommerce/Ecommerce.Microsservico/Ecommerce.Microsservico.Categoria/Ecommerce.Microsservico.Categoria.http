@@ -1,6 +1,0 @@
-@Ecommerce.Microsservico.Categoria_HostAddress = http://localhost:5200
-
-GET {{Ecommerce.Microsservico.Categoria_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

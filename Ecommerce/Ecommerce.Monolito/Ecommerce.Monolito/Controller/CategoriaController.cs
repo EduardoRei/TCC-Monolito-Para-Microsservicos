@@ -2,6 +2,7 @@
 using Ecommerce.Monolito.Core.Interface;
 using Ecommerce.Commons.Util;
 using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Monolito.Core.Enity;
 
 namespace Ecommerce.Monolito.Controller
 {
@@ -42,7 +43,7 @@ namespace Ecommerce.Monolito.Controller
         }
 
         [HttpPost(Name = "AddCategoria")]
-        public async Task<ActionResult> AddCategoria(CategoriaDto categoriaDto)
+        public async Task<ActionResult> AddCategoria(CategoriaCreateDto categoriaDto)
         {
             if (string.IsNullOrWhiteSpace(categoriaDto.Nome) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(categoriaDto.Nome))
                 return BadRequest("Nome é obrigatório");
@@ -52,9 +53,11 @@ namespace Ecommerce.Monolito.Controller
             if (existe)
                 return BadRequest("Ja existe este categoria");
 
-            await _categoriaService.AddCategoriaAsync(categoriaDto);
+            var categoria = new CategoriaDto { Nome = categoriaDto.Nome };
 
-            return CreatedAtAction(nameof(GetCategoriaById), new { id = categoriaDto.Id }, categoriaDto);
+            await _categoriaService.AddCategoriaAsync(categoria);
+
+            return CreatedAtAction(nameof(GetCategoriaById), new { id = categoria.Id }, categoria);
         }
 
         [HttpPut( Name = "UpdateCategoria")]

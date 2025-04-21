@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Monolito.DbMigrator.Entities;
 using Ecommerce.Commons.Dtos;
+using Ecommerce.Commons.Enums;
 
 namespace Ecommerce.Monolito.DbMigrator.Extensions
 {
@@ -24,10 +25,10 @@ namespace Ecommerce.Monolito.DbMigrator.Extensions
             {
                 Id = pedido.Id,
                 IdPagamento = pedido.IdPagamento ?? 0,
-                IdUsuario = pedido.IdUsuario,
-                PrecoTotal = pedido.PrecoTotal,
+                IdUsuario = (int)pedido.IdUsuario,
+                PrecoTotal = (double)pedido.PrecoTotal,
                 ProdutoPedido = pedido.ProdutoPedido.Select(pp => pp.ToEntity()).ToList(),
-                StatusPedido = pedido.StatusPedido
+                StatusPedido = (StatusPedidoEnum)pedido.StatusPedido
             };
         }
     }

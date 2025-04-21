@@ -1,8 +1,11 @@
-﻿namespace Ecommerce.Commons.Dtos
+﻿using Ecommerce.Commons.Enums;
+
+namespace Ecommerce.Commons.Dtos
 {
     public class CreatePedidoDto
     {
-        public int IdUsuario { get; set; }
+        public required int IdUsuario { get; set; }
+        public required FormaPagamentoEnum FormaPagamento { get; set; }
 
         public List<CreateProdutoPedidoDto> CreateProdutoPedido { get; set; } = new List<CreateProdutoPedidoDto>();
     }

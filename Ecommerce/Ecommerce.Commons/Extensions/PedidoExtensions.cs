@@ -24,10 +24,10 @@ namespace Ecommerce.Commons.Extensions
             {
                 Id = pedido.Id,
                 IdPagamento = pedido.IdPagamento ?? 0,
-                IdUsuario = pedido.IdUsuario,
-                PrecoTotal = pedido.PrecoTotal,
+                IdUsuario = (int)pedido.IdUsuario,
+                PrecoTotal = (double)pedido.PrecoTotal,
                 ProdutoPedido = pedido.ProdutoPedido.Select(pp => pp.ToEntity()).ToList(),
-                StatusPedido = pedido.StatusPedido
+                StatusPedido = (Enums.StatusPedidoEnum)pedido.StatusPedido
             };
         }
     }

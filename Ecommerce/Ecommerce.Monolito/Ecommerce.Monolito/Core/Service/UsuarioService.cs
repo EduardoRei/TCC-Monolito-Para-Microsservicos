@@ -35,25 +35,26 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task<(bool existe, string campoExistente)> ExisteUsuarioAsync(string email, string cpf)
         {
-            var listaUsuarios = await DbContext.Usuario.Where(x => x.Email == email || x.CPF == cpf).ToListAsync();
+            var listaUsuarios = await DbContext.Usuario
+                                .Where(x => x.Email.ToLower() == email.ToLower() || x.CPF.ToLower() == cpf.ToLower()).ToListAsync();
 
-            if (listaUsuarios.Count > 0)
-                return (false, " ");
+            if (listaUsuarios.Count == 0)
+                return (false, string.Empty);
 
             var sb = new StringBuilder();
-            bool cpfCadastrado = false;
+            bool cpfCadastrado = listaUsuarios.Any(x => x.CPF == cpf);
+            bool emailCadastrado = listaUsuarios.Any(x => x.Email == email);
 
-            if (listaUsuarios.Any(x => x.CPF == cpf))
+            if (cpfCadastrado)
+                sb.Append($"Já existe um usuário com o CPF {cpf} cadastrado");
+
+            if (emailCadastrado)
             {
-                cpfCadastrado = true;
-                sb.Append($"Ja existe um usario com o Cpf {cpf} cadastrado");
-            }
-
-            if (listaUsuarios.Any(x => x.Email == email))
                 if (cpfCadastrado)
-                    sb.Append($" e ja existe um usuario com o email {email} esta cadastrado.");
+                    sb.Append($" e já existe um usuário com o email {email} cadastrado.");
                 else
-                    sb.Append($"Ja existe um usario cadastarado com o email {email}.");
+                    sb.Append($"Já existe um usuário cadastrado com o email {email}.");
+            }
 
             return (true, sb.ToString());
         }

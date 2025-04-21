@@ -4,9 +4,6 @@ using Ecommerce.Commons.RabbitMq.Producer;
 using Ecommerce.Microsservico.Pedido.Api.Core.Entities;
 using Ecommerce.Microsservico.Pedido.Api.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
-using System.Text.Json;
-using System.Transactions;
 
 namespace Ecommerce.Microsservico.Pedido.Api.Controllers
 {
@@ -17,6 +14,8 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
 
         private readonly IPedidoService _service;
         private readonly IProdutoPedidoService _produtoPedidoService;
+        private readonly IProdutoService _produtoService;
+        private readonly IUsuarioService _usuarioService;
         private readonly IMessageProducer _producer;
 
         private const string UsuarioApiUrl = "http://kong:8000/usuario/api/Usuario/";
@@ -25,11 +24,15 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
         public PedidoController(
                 IPedidoService service,
                 IMessageProducer producer,
+                IUsuarioService usuarioService,
+                IProdutoService produtoService,
                 IProdutoPedidoService produtoPedidoService)
         {
             _service = service;
             _produtoPedidoService = produtoPedidoService;
             _producer = producer;
+            _usuarioService = usuarioService;
+            _produtoService = produtoService;
         }
 
         [HttpGet("{id}")]
@@ -52,45 +55,59 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(CreatePedidoDto createPedidoDto, FormaPagamentoEnum formaPagamento)
+        public async Task<IActionResult> Add(CreatePedidoDto createPedidoDto)
         {
             try
             {
-                bool usuarioExists = await UsuarioExistsAsync(createPedidoDto.IdUsuario);
-                if (!usuarioExists)
-                    return BadRequest("Usuário não encontrado");
-
-                if (!createPedidoDto.CreateProdutoPedido.Any())
+                if (createPedidoDto.CreateProdutoPedido.Count == 0)
                     return BadRequest("Pedido sem produtos");
 
-                if (createPedidoDto.CreateProdutoPedido.Any(x => x.QuantidadeProduto == 0))
-                    return BadRequest("Não é possivel adicionar um produto sem informar a quantidade");
+                if (createPedidoDto.CreateProdutoPedido.Any(x => x.QuantidadeProduto <= 0))
+                    return BadRequest("Quantidade de produto inválida");
 
-                var produtos = await GetListaProdutosAsync(createPedidoDto.CreateProdutoPedido.Select(x => x.IdProduto).ToList());
+                var produtosAgrupados = createPedidoDto.CreateProdutoPedido
+                    .GroupBy(p => p.IdProduto)
+                    .Select(group => new
+                    {
+                        IdProduto = group.Key,
+                        QuantidadeTotal = group.Sum(p => p.QuantidadeProduto)
+                    })
+                    .ToList();
 
-                if (!produtos.Any())
+                var usuarioTask = _usuarioService.UsuarioExistsAsync(createPedidoDto.IdUsuario);
+                var produtosTask = _produtoService.GetListaProdutosAsync(produtosAgrupados.Select(x => x.IdProduto).ToList());
+
+                await Task.WhenAll(usuarioTask, produtosTask);
+
+                if (!usuarioTask.Result)
+                    return BadRequest("Usuário não encontrado");
+
+                var produtos = produtosTask.Result;
+                if (produtos.Count == 0)
                     return BadRequest("Nenhum produto foi encontrado.");
 
-                var listaProdutoPedidoDto = createPedidoDto.CreateProdutoPedido
-                .GroupBy(p => p.IdProduto)
-                .Select(group => new ProdutoPedidoDto()
-                {
-                    IdProduto = group.Key,
-                    QuantidadeProduto = group.Sum(p => p.QuantidadeProduto) 
-                })
-                .ToList();
-
-                if (produtos.Count != listaProdutoPedidoDto.Count)
-                    return BadRequest("Nem todos os produtos foram encontrados.");
+                var produtosDict = produtos.ToDictionary(p => p.Id);
+                if (produtos.Count != produtosAgrupados.Count)
+                    return BadRequest("Nem todos os produtos foram encontrados");
 
                 double precoTotal = 0;
-                foreach (var produto in produtos)
-                {
-                    var produtoPedido = createPedidoDto.CreateProdutoPedido.FirstOrDefault(x => x.IdProduto == produto.Id);
-                    if (produto.QuantidadeEstoque < produtoPedido?.QuantidadeProduto)
-                        return BadRequest($"A Quantidade solicitada de produto {produto.Nome} é maior do que a quantidade disponivel no estoque.");
+                var listaProdutoPedidoDto = new List<ProdutoPedidoDto>();
 
-                    precoTotal += produto.PrecoUnitario ?? 0 * (produtoPedido?.QuantidadeProduto ?? 0);
+                foreach (var produtoAgrupado in produtosAgrupados)
+                {
+                    if (!produtosDict.TryGetValue(produtoAgrupado.IdProduto, out var produto))
+                        return BadRequest($"Produto {produtoAgrupado.IdProduto} não encontrado.");
+
+                    if (produto.QuantidadeEstoque < produtoAgrupado.QuantidadeTotal)
+                        return BadRequest($"Estoque insuficiente para {produto.Nome}");
+
+                    precoTotal += (produto.PrecoUnitario ?? 0) * produtoAgrupado.QuantidadeTotal;
+
+                    listaProdutoPedidoDto.Add(new ProdutoPedidoDto
+                    {
+                        IdProduto = produtoAgrupado.IdProduto,
+                        QuantidadeProduto = produtoAgrupado.QuantidadeTotal
+                    });
                 }
 
                 var pedidoDto = new PedidoDto()
@@ -101,22 +118,25 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
                     StatusPedido = StatusPedidoEnum.AguardandoPagamento
                 };
 
-                using (var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    await _service.AddAsync(pedidoDto);
+                var mensagens = listaProdutoPedidoDto
+                    .Select(p => new MensagemPedidoCriadoProduto(p.IdProduto, p.QuantidadeProduto))
+                    .ToList();
 
-                    var mensagemPagamento = new MensagemPedidoCriadoPagamento(pedidoDto.Id, formaPagamento);
-                    await _producer.SendMessage(mensagemPagamento, RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoPagamento);
-                    foreach(var produto in listaProdutoPedidoDto)
-                        await _producer.SendMessage(new MensagemPedidoCriadoProduto(produto.IdProduto, produto.QuantidadeProduto), RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoProduto);
+                var addTask = _service.AddAsync(pedidoDto, mensagens);
+                var sendMessageTask = _producer.SendMessage(
+                    new MensagemPedidoCriadoPagamento(pedidoDto.Id, createPedidoDto.FormaPagamento),
+                    RabbitMqQueueEnum.PedidoQueue,
+                    RabbitMqRoutingKeyEnum.PedidoPagamento);
 
-                    transaction.Complete();
-                    return CreatedAtAction(nameof(Get), new { id = pedidoDto.Id }, pedidoDto);
-                }
+                await Task.WhenAll(addTask, sendMessageTask);
+
+                pedidoDto.ProdutoPedido.ForEach(p => p.IdPedido = pedidoDto.Id);
+
+                return CreatedAtAction(nameof(Get), new { id = pedidoDto.Id }, pedidoDto);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return StatusCode(500, "Ocorreu um erro ao processar o pedido: " + e.StackTrace);
+                return StatusCode(500, "Ocorreu um erro ao processar o pedido");
             }
         }
 
@@ -127,9 +147,14 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
             if (pedido == null)
                 return BadRequest("Pedido não encontrado");
 
-            pedido.StatusPedido = pedidoDto.StatusPedido;
-            pedido.IdPagamento = pedidoDto.IdPagamento;
-            pedido.PrecoTotal = pedido.PrecoTotal;
+            if(pedidoDto.StatusPedido.HasValue && pedidoDto.StatusPedido != 0)
+                pedido.StatusPedido = pedidoDto.StatusPedido;
+            
+            if(pedidoDto.IdPagamento.HasValue && pedidoDto.IdPagamento != 0)
+                pedido.IdPagamento = pedidoDto.IdPagamento;
+            
+            if (pedidoDto.PrecoTotal.HasValue && pedidoDto.PrecoTotal != 0)
+                pedido.PrecoTotal = pedido.PrecoTotal;
 
             await _service.UpdateAsync(pedido);
             return NoContent();
@@ -167,37 +192,6 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
         {
             await _service.DeleteAsync(id);
             return NoContent();
-        }
-
-        private async Task<bool> UsuarioExistsAsync(int id)
-        {
-            using (var httpClient = new HttpClient())
-            {
-                var response = await httpClient.GetAsync(UsuarioApiUrl + id);
-                return response.IsSuccessStatusCode;
-            }
-        }
-
-        private async Task<List<ProdutoDto>> GetListaProdutosAsync(List<int> listaIds)
-        {
-            List<ProdutoDto> produtos = new List<ProdutoDto>();
-            using (var httpClient = new HttpClient())
-            {
-                var jsonContent = new StringContent(JsonSerializer.Serialize(listaIds), Encoding.UTF8, "application/json");
-
-                var response = await httpClient.PostAsync(ProdutoApiUrl + "getListProdutosByListIds", jsonContent);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var produtosRetornados = await response.Content.ReadFromJsonAsync<List<ProdutoDto>>();
-
-                    if (produtosRetornados != null)
-                    {
-                        produtos.AddRange(produtosRetornados);
-                    }
-                }
-            }
-            return produtos;
         }
     }
 }

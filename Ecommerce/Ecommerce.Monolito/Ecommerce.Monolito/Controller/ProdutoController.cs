@@ -2,6 +2,7 @@
 using Ecommerce.Monolito.Core.Interface;
 using Ecommerce.Commons.Util;
 using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Monolito.Core.Enity;
 
 namespace Ecommerce.Monolito.Controller
 {
@@ -53,29 +54,38 @@ namespace Ecommerce.Monolito.Controller
         }
 
         [HttpPost(Name = "AddProduto")]
-        public async Task<ActionResult> AddProduto(ProdutoDto produtoDto)
+        public async Task<ActionResult> AddProduto(ProdutoCreateDto produtoDto)
         {
             if (string.IsNullOrWhiteSpace(produtoDto.Nome) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(produtoDto.Nome))
                 return BadRequest("Nome é obrigatório.");
 
-            if (!produtoDto.PrecoUnitario.HasValue || produtoDto.PrecoUnitario <= 0)
+            if (produtoDto.PrecoUnitario <= 0)
                 return BadRequest("PrecoUnitario é obrigatório.");
 
-            if (!produtoDto.QuantidadeEstoque.HasValue)
+            if (produtoDto.QuantidadeEstoque <= 0)
                 return BadRequest("QuantidadeEstoque é obrigatório.");
 
-            if (!produtoDto.IdCategoria.HasValue || produtoDto.IdCategoria <= 0)
+            if (produtoDto.IdCategoria <= 0)
                 return BadRequest("IdCategoria é obrigatório.");
-
-            if (await _produtoService.ExisteProdutoAsync(produtoDto.Nome, produtoDto.IdCategoria))
-                return BadRequest("Ja existe este produto.");
 
             if (!await _categoriaService.ExisteCategoriaAsync(produtoDto.IdCategoria))
                 return BadRequest("Categoria informada não existe.");
 
-            await _produtoService.AddProdutoAsync(produtoDto);
+            if (await _produtoService.ExisteProdutoAsync(produtoDto.Nome, produtoDto.IdCategoria))
+                return BadRequest("Ja existe este produto.");
 
-            return CreatedAtAction(nameof(GetProdutoById), new { id = produtoDto.Id }, produtoDto);
+            var produto = new ProdutoDto
+            {
+                IdCategoria = produtoDto.IdCategoria,
+                Nome = produtoDto.Nome,
+                Descricao = produtoDto.Descricao,
+                QuantidadeEstoque = produtoDto.QuantidadeEstoque,
+                PrecoUnitario = produtoDto.PrecoUnitario
+            };
+
+            await _produtoService.AddProdutoAsync(produto);
+
+            return CreatedAtAction(nameof(GetProdutoById), new { id = produto.Id }, produto);
         }
 
         [HttpPut( Name = "UpdateProduto")]

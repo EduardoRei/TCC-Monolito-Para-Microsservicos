@@ -38,15 +38,53 @@ namespace Ecommerce.Monolito.Controller
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(PagamentoDto pagamento)
+        public async Task<IActionResult> Add(PagamentoCreateDto pagamentoDto)
         {
+            if (pagamentoDto == null)
+                return BadRequest();
+
+            if (pagamentoDto.IdPedido == 0)
+                return BadRequest("IdPedido não informado.");
+
+            var pagamento = new PagamentoDto
+            {
+                IdPedido = pagamentoDto.IdPedido,
+                FormaPagamento = pagamentoDto.FormaPagamento,
+                StatusPagamento = StatusPagamentoEnum.AguardandoPagamento
+            };
+
             await _service.AddAsync(pagamento);
             return CreatedAtAction(nameof(Get), new { id = pagamento.Id }, pagamento);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(PagamentoDto pagamento)
+        public async Task<IActionResult> Update(PagamentoUpdateDto updatePagamento)
         {
+            if (updatePagamento.Id == 0)
+                return BadRequest("Id não informado.");
+
+            var pagamento = await _service.GetByIdAsync(updatePagamento.Id);
+
+            if (pagamento == null)
+                return NotFound($"Não foi possivel alterar o pagamento do Id {updatePagamento.Id}, Id não encontrado.");
+
+            if (updatePagamento.IdPedido != 0 && updatePagamento.IdPedido.HasValue)
+            {
+                if (await _pedidoService.GetByIdAsync(updatePagamento.IdPedido.Value) == null)
+                    return NotFound($"Não foi possivel alterar o pagamento do Id {updatePagamento.Id}, Pedido não encontrado.");
+
+                pagamento.IdPedido = (int)updatePagamento?.IdPedido;
+            }
+
+            if (updatePagamento.StatusPagamento != null && updatePagamento.StatusPagamento.HasValue)
+                pagamento.StatusPagamento = updatePagamento.StatusPagamento.Value;
+
+            if (updatePagamento.FormaPagamento != null && updatePagamento.FormaPagamento.HasValue)
+                pagamento.FormaPagamento = updatePagamento.FormaPagamento.Value;
+
+            if (updatePagamento.DataPagamento != null && updatePagamento.FormaPagamento.HasValue)
+                pagamento.DataPagamento = updatePagamento.DataPagamento.Value;
+
             await _service.UpdateAsync(pagamento);
             return NoContent();
         }
@@ -77,11 +115,12 @@ namespace Ecommerce.Monolito.Controller
             {
                 await _service.UpdateAsync(pagamento);
                 var statusPedido = StatusPedidoEnum.PedidoCancelado;
-                if (realizarPagamento.StatusPagamento == StatusPagamentoEnum.ProcessandoPagamento || 
+                if (realizarPagamento.StatusPagamento == StatusPagamentoEnum.ProcessandoPagamento ||
                     realizarPagamento.StatusPagamento == StatusPagamentoEnum.PagamentoIdentificado)
                     statusPedido = StatusPedidoEnum.SeparandoPedido;
 
                 await _pedidoService.UpdatePedidoStatusAsync(pagamento.IdPedido, statusPedido);
+                transaction.Complete();
             }
 
             return NoContent();
