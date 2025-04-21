@@ -35,7 +35,7 @@ namespace Ecommerce.Monolito.Core.Service
 
         public async Task<bool> ExisteProdutoAsync(string nome, int? idCategoria)
         {
-            var produto = await DbContext.Produto.FirstOrDefaultAsync(x => x.Nome == nome && x.IdCategoria == idCategoria);
+            var produto = await DbContext.Produto.FirstOrDefaultAsync(x => x.Nome.ToLower() == nome.ToLower() && x.IdCategoria == idCategoria);
             return produto?.Id != 0;
         }
 

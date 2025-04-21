@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Commons.Dtos;
 using Ecommerce.Commons.Util;
+using Ecommerce.Microsservico.Produto.Api.Core.Entities;
 using Ecommerce.Microsservico.Produto.Api.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,7 +43,7 @@ namespace Ecommerce.Microsservico.Categoria.Api.Controllers
         }
 
         [HttpPost(Name = "AddCategoria")]
-        public async Task<ActionResult> AddCategoria(CategoriaDto categoriaDto)
+        public async Task<ActionResult> AddCategoria(CategoriaCreateDto categoriaDto)
         {
             if (string.IsNullOrWhiteSpace(categoriaDto.Nome) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(categoriaDto.Nome))
                 return BadRequest("Nome é obrigatório");
@@ -52,9 +53,14 @@ namespace Ecommerce.Microsservico.Categoria.Api.Controllers
             if (existe)
                 return BadRequest("Ja existe este categoria");
 
-            await _categoriaService.AddCategoriaAsync(categoriaDto);
+            var categoria = new CategoriaDto
+            {
+                Nome = categoriaDto.Nome
+            };
 
-            return CreatedAtAction(nameof(GetCategoriaById), new { id = categoriaDto.Id }, categoriaDto);
+            await _categoriaService.AddCategoriaAsync(categoria);
+
+            return CreatedAtAction(nameof(GetCategoriaById), new { id = categoria.Id }, categoria);
         }
 
         [HttpPut( Name = "UpdateCategoria")]

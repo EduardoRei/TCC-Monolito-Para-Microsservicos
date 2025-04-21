@@ -1,6 +1,9 @@
 ﻿using Ecommerce.Commons.Core.Base;
 using Ecommerce.Commons.Dtos;
+using Ecommerce.Commons.Enums;
 using Ecommerce.Commons.Extensions;
+using Ecommerce.Commons.RabbitMq.Producer;
+using Ecommerce.Microsservico.Pedido.Api.Core.Entities;
 using Ecommerce.Microsservico.Pedido.Api.Core.Interface;
 using Ecommerce.Microsservico.Pedido.DbMigrator.Context;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +12,13 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
 {
     public class PedidoService : ServiceBase<PedidoDbContext>, IPedidoService
     {
-        public PedidoService(PedidoDbContext dbContext) : base(dbContext)
+        private readonly IMessageProducer _producer;
+
+        public PedidoService(
+            PedidoDbContext dbContext,
+            IMessageProducer producer) : base(dbContext)
         {
+            _producer = producer;
         }
 
         public async Task<PedidoDto?> GetByIdAsync(int id)
@@ -28,12 +36,35 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
                 .Select(p => p.ToDto())
                 .ToListAsync();
 
-        public async Task AddAsync(PedidoDto pedido)
+        public async Task AddAsync(PedidoDto pedido, List<MensagemPedidoCriadoProduto> mensagens)
         {
-            var entity = pedido.ToEntity();
-            DbContext.Pedido.Add(entity);
-            await DbContext.SaveChangesAsync();
-            pedido.Id = entity.Id;
+            await using var transaction = await DbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var entity = pedido.ToEntity();
+
+                foreach (var produtoPedido in entity.ProdutoPedido)
+                {
+                    produtoPedido.Pedido = entity;
+                }
+
+                DbContext.Pedido.Add(entity);
+                await DbContext.SaveChangesAsync();
+
+                pedido.Id = entity.Id;
+
+                var tasks = mensagens.Select(mensagem =>
+                    _producer.SendMessage(mensagem, RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoProduto)).ToList();
+
+                await Task.WhenAll(tasks);
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task UpdateAsync(PedidoDto pedido)

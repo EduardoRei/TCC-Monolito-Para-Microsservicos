@@ -41,6 +41,9 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(CreatePagamentoDto createPagamento)
         {
+            if(createPagamento.IdPedido == 0)
+                return BadRequest("IdPedido é obrigatório.");
+
             var pagamento = new PagamentoDto() { IdPedido = createPagamento.IdPedido, FormaPagamento = createPagamento.FormaPagamento};
             await _service.AddAsync(pagamento);
             var mensagemPagamento = new MensagemPagamentoCriado(pagamento.IdPedido, pagamento.Id);
@@ -74,11 +77,11 @@ namespace Ecommerce.Microsservico.Pagamento.Api.Controllers
         [HttpPut( "AlterarStatusPagamento")]
         public async Task<IActionResult> UpdateStatusPagamento(UpdatePagamentoDto updatePagamento)
         {
-            var pagamento = await _service.GetByIdAsync(updatePagamento.id);
+            var pagamento = await _service.GetByIdAsync(updatePagamento.Id);
             if (pagamento == null)
-                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {updatePagamento.id}, Id não encontrado.");
+                return NotFound($"Não foi possivel alterar a forma de pagamento do Id {updatePagamento.Id}, Id não encontrado.");
             
-            pagamento.StatusPagamento = updatePagamento.statusPagamento;
+            pagamento.StatusPagamento = updatePagamento.StatusPagamento;
             if(pagamento.StatusPagamento == StatusPagamentoEnum.PagamentoIdentificado 
                 || pagamento.StatusPagamento == StatusPagamentoEnum.ProcessandoPagamento)
                 pagamento.DataPagamento = DateTime.Now;

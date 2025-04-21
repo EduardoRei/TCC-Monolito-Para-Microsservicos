@@ -1,7 +1,10 @@
 _format_version: "3.0"
+
 services:
   - name: produto-service
-    url: http://produto-api:8080
+    host: produto-upstream
+    port: 8080
+    protocol: http
     routes:
       - name: produto-route
         paths:
@@ -22,15 +25,24 @@ services:
           - /pagamento
 
   - name: pedido-service
-    url: http://pedido-api:8080
+    host: pedido-upstream
+    port: 8080
+    protocol: http
     routes:
       - name: pedido-route
         paths:
           - /pedido
 
-  - name: monolito-service
-    url: http://monolito:8080
-    routes:
-      - name: monolito-route
-        paths:
-          - /
+upstreams:
+  - name: produto-upstream
+    algorithm: round-robin
+    targets:
+      - target: produto-api:8080
+      - target: produto-api-1:8080
+
+  - name: pedido-upstream
+    algorithm: round-robin
+    targets:
+      - target: pedido-api:8080
+      - target: pedido-api-1:8080
+      - target: pedido-api-2:8080

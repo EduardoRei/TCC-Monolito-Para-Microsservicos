@@ -2,5 +2,5 @@
 
 namespace Ecommerce.Microsservico.Pagamento.Api.Core.Entities
 {
-    public record UpdatePagamentoDto (int id, StatusPagamentoEnum statusPagamento);
+    public record UpdatePagamentoDto (int Id, StatusPagamentoEnum StatusPagamento);
 }

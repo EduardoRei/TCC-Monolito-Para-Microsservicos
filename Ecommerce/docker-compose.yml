@@ -12,6 +12,24 @@ services:
     networks:
       - ecommerce-network
 
+  monolito:
+    build:
+      context: .
+      dockerfile: ./Ecommerce.Monolito/Ecommerce.Monolito/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"
+    depends_on:
+      - "sqlserver"
+    networks:
+      - ecommerce-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G  
+
   produto-api:
     build:
       context: .
@@ -24,6 +42,27 @@ services:
       - "sqlserver"
     networks:
       - ecommerce-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G  
+
+  produto-api-1:
+    build:
+      context: .
+      dockerfile: ./Ecommerce.Microsservico/Ecommerce.Microsservico.Produto.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - "sqlserver"
+    networks:
+      - ecommerce-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G  
 
   usuario-api:
     build:
@@ -37,6 +76,11 @@ services:
       - "sqlserver"
     networks:
       - ecommerce-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G  
 
   pagamento-api:
     build:
@@ -50,6 +94,11 @@ services:
       - "sqlserver"
     networks:
       - ecommerce-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G  
 
   pedido-api:
     build:
@@ -63,6 +112,43 @@ services:
       - "sqlserver"
     networks:
       - ecommerce-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G  
+
+  pedido-api-1:
+    build:
+      context: .
+      dockerfile: ./Ecommerce.Microsservico/Ecommerce.Microsservico.Pedido.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - "sqlserver"
+    networks:
+      - ecommerce-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G  
+
+  pedido-api-2:
+    build:
+      context: .
+      dockerfile: ./Ecommerce.Microsservico/Ecommerce.Microsservico.Pedido.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - "sqlserver"
+    networks:
+      - ecommerce-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G  
 
   rabbitmq-consumer:
     build:
@@ -74,23 +160,14 @@ services:
       - "5005:8080"
     depends_on:
       - "rabbitmq"
+      - "pedido-api"
+      - "pagamento-api"
+      - "produto-api"
+      - "usuario-api"
     networks:
       - ecommerce-network
-    restart: always
-
-  monolito:
-    build:
-      context: .
-      dockerfile: ./Ecommerce.Monolito/Ecommerce.Monolito/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5000:8080"
-    depends_on:
-      - "sqlserver"
-    networks:
-      - ecommerce-network
-
+    restart: on-failure:10
+    
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'

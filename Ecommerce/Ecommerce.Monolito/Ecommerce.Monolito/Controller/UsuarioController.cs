@@ -2,6 +2,7 @@
 using Ecommerce.Monolito.Core.Interface;
 using Ecommerce.Commons.Util;
 using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Monolito.Core.Enity;
 
 namespace Ecommerce.Monolito.Controller
 {
@@ -38,7 +39,6 @@ namespace Ecommerce.Monolito.Controller
             return Ok(usuarios);
         }
 
-
         [HttpDelete("{id}", Name = "DeleteUsuario")]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
@@ -46,10 +46,8 @@ namespace Ecommerce.Monolito.Controller
             return NoContent();
         }
 
-
-
         [HttpPost(Name = "AddUsuario")]
-        public async Task<ActionResult> AddUsuario(UsuarioDto usuarioDto)
+        public async Task<ActionResult> AddUsuario(UsuarioCreateDto usuarioDto)
         {
             if (string.IsNullOrWhiteSpace(usuarioDto.Nome) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(usuarioDto.Nome))
                 return BadRequest("Nome é obrigatório");
@@ -57,7 +55,7 @@ namespace Ecommerce.Monolito.Controller
             if (string.IsNullOrWhiteSpace(usuarioDto.Email) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(usuarioDto.Email))
                 return BadRequest("Email é obrigatório");
 
-            if (ValidarEmail(usuarioDto.Email))
+            if (!ValidarEmail(usuarioDto.Email))
                 return BadRequest("Email é invalido");
 
             if (string.IsNullOrWhiteSpace(usuarioDto.Senha) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(usuarioDto.Senha))
@@ -78,11 +76,21 @@ namespace Ecommerce.Monolito.Controller
             if (existe)
                 return BadRequest("Ja existe este usuario");
 
-            await _usuarioService.AddUsuarioAsync(usuarioDto);
+            var usuario = new UsuarioDto
+            {
+                Nome = usuarioDto.Nome,
+                Email = usuarioDto.Email,
+                Senha = usuarioDto.Senha,
+                Endereco = usuarioDto.Endereco,
+                CPF = usuarioDto.CPF,
+                DataNascimento = usuarioDto.DataNascimento,
+                DataCriacaoUsuario = usuarioDto.DataCriacaoUsuario
+            };
 
-            return CreatedAtAction(nameof(GetUsuarioById), new { id = usuarioDto.Id }, usuarioDto);
+            await _usuarioService.AddUsuarioAsync(usuario);
+
+            return CreatedAtAction(nameof(GetUsuarioById), new { id = usuario.Id }, usuario);
         }
-
 
         [HttpPut(Name = "UpdateUsuario")]
         public async Task<IActionResult> UpdateUsuario(UsuarioDto usuarioDto)

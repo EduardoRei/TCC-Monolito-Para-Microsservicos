@@ -2,7 +2,7 @@
 using Ecommerce.Commons.Enums;
 using Ecommerce.Commons.RabbitMq.Producer;
 using Ecommerce.Commons.Util;
-using Ecommerce.Microsservico.Produto.Api.Core.Entity;
+using Ecommerce.Microsservico.Produto.Api.Core.Entities;
 using Ecommerce.Microsservico.Produto.Api.Core.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -72,29 +72,38 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
         }
 
         [HttpPost(Name = "AddProduto")]
-        public async Task<ActionResult> AddProduto(ProdutoDto produtoDto)
+        public async Task<ActionResult> AddProduto(ProdutoCreateDto produtoDto)
         {
             if (string.IsNullOrWhiteSpace(produtoDto.Nome) || NomeContemPalavraProibidaUtil.NomeContemPalavraProibida(produtoDto.Nome))
                 return BadRequest("Nome é obrigatório.");
 
-            if (!produtoDto.PrecoUnitario.HasValue || produtoDto.PrecoUnitario <= 0)
+            if (produtoDto.PrecoUnitario <= 0)
                 return BadRequest("PrecoUnitario é obrigatório.");
 
-            if (!produtoDto.QuantidadeEstoque.HasValue)
+            if (produtoDto.QuantidadeEstoque <= 0)
                 return BadRequest("QuantidadeEstoque é obrigatório.");
 
-            if (!produtoDto.IdCategoria.HasValue || produtoDto.IdCategoria <= 0)
+            if (produtoDto.IdCategoria <= 0)
                 return BadRequest("IdCategoria é obrigatório.");
-
-            if (!await _produtoService.ExisteProdutoAsync(produtoDto.Nome, produtoDto.IdCategoria))
-                return BadRequest("Ja existe este produto.");
 
             if (!await _categoriaService.ExisteCategoriaAsync(produtoDto.IdCategoria))
                 return BadRequest("Categoria informada não existe.");
 
-            await _produtoService.AddProdutoAsync(produtoDto);
+            if (!await _produtoService.ExisteProdutoAsync(produtoDto.Nome, produtoDto.IdCategoria))
+                return BadRequest("Ja existe este produto.");
 
-            return CreatedAtAction(nameof(GetProdutoById), new { id = produtoDto.Id }, produtoDto);
+            var produto = new ProdutoDto
+            {
+                Nome = produtoDto.Nome,
+                Descricao = produtoDto.Descricao,
+                PrecoUnitario = produtoDto.PrecoUnitario,
+                QuantidadeEstoque = produtoDto.QuantidadeEstoque,
+                IdCategoria = produtoDto.IdCategoria
+            };
+
+            await _produtoService.AddProdutoAsync(produto);
+
+            return CreatedAtAction(nameof(GetProdutoById), new { id = produto.Id }, produto);
         }
 
         [HttpPut( Name = "UpdateProduto")]
@@ -130,12 +139,15 @@ namespace Ecommerce.Microsservico.Produto.Api.Controllers
         {
             if (produtoAtualizar.IdProduto <= 0)
                 return BadRequest("Id não encontrado.");
-            
+
+            if (produtoAtualizar.QuantidadeVendida <= 0)
+                return BadRequest("QuantidadeVendida deve ser maior que 0.");
+
             var produto = await _produtoService.GetProdutoByIdAsync(produtoAtualizar.IdProduto);
             if (produto == null)
                 return NotFound($"Nenhum produto foi encontrado com o id: {produtoAtualizar.IdProduto}");
 
-            await _produtoService.RemoverQuantidadeProdutoAsync(produtoAtualizar.IdProduto, produtoAtualizar.QuantidadeProduto);
+            await _produtoService.RemoverQuantidadeProdutoAsync(produtoAtualizar.IdProduto, produtoAtualizar.QuantidadeVendida);
 
             var mensagemProduto = new MensagemProdutoAlterado(produtoAtualizar.IdProduto, AlteracaoProdutoEnum.QuantidadeAlterada);
             await _producer.SendMessage(mensagemProduto, RabbitMqQueueEnum.ProdutoQueue, RabbitMqRoutingKeyEnum.ProdutoModificado);
