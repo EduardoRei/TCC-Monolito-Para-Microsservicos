@@ -166,7 +166,7 @@ services:
       - "usuario-api"
     networks:
       - ecommerce-network
-    restart: on-failure:10
+    restart: always
     
   rabbitmq:
     image: rabbitmq:3-management-alpine
