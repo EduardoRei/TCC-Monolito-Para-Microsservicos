@@ -19,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
-builder.Services.AddScoped<IMessageProducer, RabbitMQProducer>();
+builder.Services.AddSingleton<IMessageProducer, RabbitMQProducer>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

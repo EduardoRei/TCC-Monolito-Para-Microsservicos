@@ -38,33 +38,35 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
 
         public async Task AddAsync(PedidoDto pedido, List<MensagemPedidoCriadoProduto> mensagens)
         {
-            await using var transaction = await DbContext.Database.BeginTransactionAsync();
-            try
+            await using (var transaction = await DbContext.Database.BeginTransactionAsync())
             {
-                var entity = pedido.ToEntity();
-
-                foreach (var produtoPedido in entity.ProdutoPedido)
+                try
                 {
-                    produtoPedido.Pedido = entity;
+                    var entity = pedido.ToEntity();
+
+                    foreach (var produtoPedido in entity.ProdutoPedido)
+                    {
+                        produtoPedido.Pedido = entity;
+                    }
+
+                    DbContext.Pedido.Add(entity);
+                    await DbContext.SaveChangesAsync();
+
+                    pedido.Id = entity.Id;
+
+                    await transaction.CommitAsync();
                 }
-
-                DbContext.Pedido.Add(entity);
-                await DbContext.SaveChangesAsync();
-
-                pedido.Id = entity.Id;
-
-                var tasks = mensagens.Select(mensagem =>
-                    _producer.SendMessage(mensagem, RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoProduto)).ToList();
-
-                await Task.WhenAll(tasks);
-
-                await transaction.CommitAsync();
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
             }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+
+            var tasks = mensagens.Select(mensagem =>
+                _producer.SendMessage(mensagem, RabbitMqQueueEnum.PedidoQueue, RabbitMqRoutingKeyEnum.PedidoProduto)).ToList();
+
+            await Task.WhenAll(tasks);
         }
 
         public async Task UpdateAsync(PedidoDto pedido)
@@ -79,11 +81,14 @@ namespace Ecommerce.Microsservico.Pedido.Api.Core.Service
 
         public async Task DeleteAsync(int id)
         {
-            var pedidoDto = await GetByIdAsync(id);
-            if (pedidoDto != null)
+            var pedido = await DbContext.Pedido
+                .Include(p => p.ProdutoPedido)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (pedido != null)
             {
-                var pedido = pedidoDto.ToEntity();
                 DbContext.Pedido.Remove(pedido);
+                await DbContext.SaveChangesAsync();
             }
         }
     }

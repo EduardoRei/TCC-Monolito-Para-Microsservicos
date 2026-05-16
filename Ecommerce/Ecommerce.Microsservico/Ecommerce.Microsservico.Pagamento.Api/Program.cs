@@ -15,7 +15,7 @@ builder.Services.AddDbContext<PagamentoDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IMessageProducer, RabbitMQProducer>();
+builder.Services.AddSingleton<IMessageProducer, RabbitMQProducer>();
 builder.Services.AddScoped<IPagamentoService, PagamentoService>();
 
 var app = builder.Build();

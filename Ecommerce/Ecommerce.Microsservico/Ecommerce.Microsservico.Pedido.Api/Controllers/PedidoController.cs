@@ -122,13 +122,12 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
                     .Select(p => new MensagemPedidoCriadoProduto(p.IdProduto, p.QuantidadeProduto))
                     .ToList();
 
-                var addTask = _service.AddAsync(pedidoDto, mensagens);
-                var sendMessageTask = _producer.SendMessage(
+                await _service.AddAsync(pedidoDto, mensagens);
+
+                await _producer.SendMessage(
                     new MensagemPedidoCriadoPagamento(pedidoDto.Id, createPedidoDto.FormaPagamento),
                     RabbitMqQueueEnum.PedidoQueue,
                     RabbitMqRoutingKeyEnum.PedidoPagamento);
-
-                await Task.WhenAll(addTask, sendMessageTask);
 
                 pedidoDto.ProdutoPedido.ForEach(p => p.IdPedido = pedidoDto.Id);
 
@@ -154,7 +153,7 @@ namespace Ecommerce.Microsservico.Pedido.Api.Controllers
                 pedido.IdPagamento = pedidoDto.IdPagamento;
             
             if (pedidoDto.PrecoTotal.HasValue && pedidoDto.PrecoTotal != 0)
-                pedido.PrecoTotal = pedido.PrecoTotal;
+                pedido.PrecoTotal = pedidoDto.PrecoTotal;
 
             await _service.UpdateAsync(pedido);
             return NoContent();

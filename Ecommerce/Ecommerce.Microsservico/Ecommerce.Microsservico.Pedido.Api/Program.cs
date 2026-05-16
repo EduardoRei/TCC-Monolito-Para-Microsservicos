@@ -13,7 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<IProdutoPedidoService, ProdutoPedidoService>();
-builder.Services.AddScoped<IMessageProducer, RabbitMQProducer>();
+builder.Services.AddSingleton<IMessageProducer, RabbitMQProducer>();
 
 builder.Services.AddHttpClient<IUsuarioService, UsuarioService>(client =>
 {
